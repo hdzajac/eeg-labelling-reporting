@@ -1,56 +1,77 @@
-import { Button, Dialog, Flex, Select } from '@radix-ui/themes'
-import { Annotation } from './AnnotationsTimeline'
+import { Button, Flex, Heading } from '@radix-ui/themes'
+import { X } from 'lucide-react'
+
 import { ANNOTATION_TYPES, ANNOTATION_TYPES_LABELS } from '@/constants'
-import { useState } from 'react'
+import { useTimelineStore } from '@/store/timeline'
+import { Annotation } from './AnnotationsTimeline'
 
 type Props = {
   open: boolean
   selection: { start: number; end: number } | null
+  menuPosition: { x: number; y: number } | null
   onSave: (annotation: Annotation) => void
-  onOpenChange: (open: boolean) => void
+  setOpen: (open: boolean) => void
 }
 
-export default function AnnotationDialog({ open, selection, onSave }: Props) {
-  const [type, setType] = useState(ANNOTATION_TYPES[0])
+export default function AnnotationDialog({
+  open,
+  selection,
+  menuPosition,
+  setOpen,
+  onSave,
+}: Props) {
+  const { position } = useTimelineStore()
+
+  const handleConfirm = (type: string) => {
+    onSave({
+      type,
+      startTime: selection?.start ?? 0,
+      endTime: selection?.end ?? 0,
+      signalIndex: position,
+    })
+
+    setOpen(false)
+  }
+
+  if (!open) return
 
   return (
-    <Dialog.Root open={open}>
-      <Dialog.Content maxWidth="450px" aria-describedby={undefined}>
-        <Dialog.Title>Observation</Dialog.Title>
-        <div>start: {selection?.start}</div>
-        <div>end: {selection?.end}</div>
-
-        <Select.Root value={type} onValueChange={setType}>
-          <Select.Trigger />
-          <Select.Content>
-            {ANNOTATION_TYPES.map((t) => (
-              <Select.Item key={t} value={t}>
-                {ANNOTATION_TYPES_LABELS[t]}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select.Root>
-
-        <Flex gap="3" mt="4" justify="end">
-          <Dialog.Close>
-            <Button variant="soft" color="gray">
-              Cancel
-            </Button>
-          </Dialog.Close>
-          <Dialog.Close>
-            <Button
-              onClick={() =>
-                onSave({
-                  type,
-                  startTime: selection?.start ?? 0,
-                  endTime: selection?.end ?? 0,
-                })
-              }>
-              Save
-            </Button>
-          </Dialog.Close>
-        </Flex>
-      </Dialog.Content>
-    </Dialog.Root>
+    <Flex
+      direction="column"
+      position="absolute"
+      gap="2"
+      style={{
+        border: '1px solid #FF8302',
+        borderRadius: 6,
+        padding: 10,
+        backgroundColor: '#fff',
+        left: menuPosition?.x,
+        top: 0,
+        zIndex: 100,
+      }}>
+      <Flex justify="between" align="center">
+        <Heading as="h3" size="1" style={{ textTransform: 'uppercase' }}>
+          Observations
+        </Heading>
+        <Button variant="ghost" onClick={() => setOpen(false)}>
+          <X size={16} />
+        </Button>
+      </Flex>
+      <Flex direction="column" gap="1">
+        {ANNOTATION_TYPES.map((type) => (
+          <Button
+            size="1"
+            style={{
+              backgroundColor: '#FFF9F2',
+              border: '1px solid #FFCD9833',
+              color: '#FF8302',
+              justifyContent: 'left',
+            }}
+            onClick={() => handleConfirm(type)}>
+            {ANNOTATION_TYPES_LABELS[type]}
+          </Button>
+        ))}
+      </Flex>
+    </Flex>
   )
 }

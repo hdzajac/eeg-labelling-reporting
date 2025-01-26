@@ -8,6 +8,7 @@ export type Annotation = {
   type: string
   startTime: number
   endTime: number
+  signalIndex: number // Index of the signal array
 }
 
 type Props = {
@@ -17,6 +18,8 @@ type Props = {
   onAnnotationDelete: (ann: Annotation) => void
 }
 
+const TIMELINE_WIDTH = 2560 // FIXME
+
 export default function AnnotationsTimeline({
   annotations,
   onAnnotationAdd,
@@ -25,6 +28,7 @@ export default function AnnotationsTimeline({
 }: Props) {
   const { position, interval } = useTimelineStore()
   console.log('ANNOTATIONS', annotations)
+  const currAnnotations = annotations.filter((ann) => ann.signalIndex === position)
 
   return (
     <div className="panel">
@@ -43,11 +47,11 @@ export default function AnnotationsTimeline({
 
       {ANNOTATION_TYPES.map((type, index) => (
         <Grid key={index} gap="2" columns="250px 1fr">
-          <Flex style={{ backgroundColor: '#BEE1D0' }}>
+          <Flex>
             <Text align="right">{ANNOTATION_TYPES_LABELS[type]}</Text>
           </Flex>
           <Flex width="100%" height="10px" position="relative">
-            {annotations
+            {currAnnotations
               .filter((annotation) => annotation.type === type)
               .map((annotation, idx) => (
                 <Box
@@ -58,8 +62,10 @@ export default function AnnotationsTimeline({
                     backgroundColor: '#BEE1D0',
                     border: '1px solid #008045',
                     borderRadius: '1px',
-                    left: `${annotation.startTime}%`,
-                    width: `${(annotation.endTime - annotation.startTime) / 31.25}%`,
+                    left: `${(annotation.startTime * 100) / TIMELINE_WIDTH}%`,
+                    width: `${
+                      ((annotation.endTime - annotation.startTime) * 100) / TIMELINE_WIDTH
+                    }%`,
                   }}
                 />
               ))}
@@ -73,10 +79,6 @@ export default function AnnotationsTimeline({
           </Flex>
         </Grid>
       ))}
-
-      {/* <EEGViewer /> */}
     </div>
   )
 }
-
-function TimeMarkers({ annotations }) {}

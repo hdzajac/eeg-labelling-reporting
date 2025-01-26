@@ -1,5 +1,5 @@
 import { Flex, Grid } from '@radix-ui/themes'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer } from 'recharts'
 
 import { useTimelineStore } from '@/store/timeline'
@@ -18,25 +18,32 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
   const [data, setData] = useState<{ x: number; y: number }[][]>([])
   const [signalIndex, setSignalIndex] = useState(0)
 
-  const [selection, setSelection] = useState({ start: null, end: null })
+  const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [isDragging, setIsDragging] = useState(false)
-  const [popupOpen, setPopupOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
-  const handleMouseDown = (e) => {
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
+
+  const captureRef = useRef<any>(null)
+  const [screenshot, setScreenshot] = useState(null)
+
+  const handleMouseDown = (e: any) => {
     setIsDragging(true)
     setSelection({ start: e.activeLabel, end: null })
   }
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: any) => {
     if (isDragging && e && e.activeLabel) {
       setSelection((prev) => ({ ...prev, end: e.activeLabel }))
     }
   }
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e: any) => {
     if (selection.start && selection.end) {
-      setPopupOpen(true)
+      setDialogOpen(true)
     }
+
+    setMenuPosition({ x: e.chartX, y: e.chartY })
 
     setIsDragging(false)
   }
@@ -58,7 +65,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
 
   const handleSave = (annotation: Annotation) => {
     onAnnotationAdd(annotation)
-    setPopupOpen(false)
+    setDialogOpen(false)
   }
 
   return (
@@ -67,7 +74,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
 
       <Grid columns="250px 1fr" gap="2">
         <Flex style={{}}></Flex>
-        <Flex direction="column">
+        <Flex direction="column" ref={captureRef} position="relative">
           {data.map((d, index) => (
             <Chart
               key={index}
@@ -79,26 +86,15 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
               isDragging={isDragging}
             />
           ))}
+          <AnnotationDialog
+            selection={selection}
+            open={dialogOpen}
+            setOpen={setDialogOpen}
+            onSave={handleSave}
+            menuPosition={menuPosition}
+          />
         </Flex>
       </Grid>
-
-      <AnnotationDialog selection={selection} open={popupOpen} onSave={handleSave} />
-
-      {/* <h2>Index: {index}</h2>
-      <Slider value={[index]} onValueChange={(val) => setIndex(val[0])} />
-      <h2>Signal</h2>
-      <Select.Root
-        value={signalIndex.toString()}
-        onValueChange={(value) => setSignalIndex(parseInt(value))}>
-        <Select.Trigger />
-        <Select.Content>
-          {edf?._header.signalInfo.map((signal, index) => (
-            <Select.Item key={index} value={index.toString()}>
-              {signal.label}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select.Root> */}
     </div>
   )
 }
