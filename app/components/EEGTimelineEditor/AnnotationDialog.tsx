@@ -24,7 +24,9 @@ export default function AnnotationDialog({ open, selection, onSave }: Props) {
           <Select.Trigger />
           <Select.Content>
             {ANNOTATION_TYPES.map((t) => (
-              <Select.Item value={t}>{ANNOTATION_TYPES_LABELS[t]}</Select.Item>
+              <Select.Item key={t} value={t}>
+                {ANNOTATION_TYPES_LABELS[t]}
+              </Select.Item>
             ))}
           </Select.Content>
         </Select.Root>
