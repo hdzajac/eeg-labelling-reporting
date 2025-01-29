@@ -3,6 +3,7 @@ import { Box, Flex, Grid, Heading, Text } from '@radix-ui/themes'
 import { ANNOTATION_TYPES, ANNOTATION_TYPES_LABELS } from '@/constants'
 import { useTimelineStore } from '@/store/timeline'
 import TimeIndicator from './TimeIndicator'
+import useEDF from './useEDF'
 
 export type Annotation = {
   type: string
@@ -13,22 +14,25 @@ export type Annotation = {
 
 type Props = {
   annotations: Annotation[]
+  edf: any
   onAnnotationAdd: (ann: Annotation) => void
   onAnnotationUpdate: (ann: Annotation) => void
   onAnnotationDelete: (ann: Annotation) => void
 }
 
-const TIMELINE_WIDTH = 2560 // FIXME
-
 export default function AnnotationsTimeline({
   annotations,
+  edf,
   onAnnotationAdd,
   onAnnotationUpdate,
   onAnnotationDelete,
 }: Props) {
   const { position, interval } = useTimelineStore()
-  console.log('ANNOTATIONS', annotations)
+  const { numberOfSamples } = useEDF(edf)
+
   const currAnnotations = annotations.filter((ann) => ann.signalIndex === position)
+
+  console.log('ANNOTATIONS', annotations)
 
   return (
     <div className="panel">
@@ -62,9 +66,9 @@ export default function AnnotationsTimeline({
                     backgroundColor: '#BEE1D0',
                     border: '1px solid #008045',
                     borderRadius: '1px',
-                    left: `${(annotation.startTime * 100) / TIMELINE_WIDTH}%`,
+                    left: `${(annotation.startTime * 100) / numberOfSamples}%`,
                     width: `${
-                      ((annotation.endTime - annotation.startTime) * 100) / TIMELINE_WIDTH
+                      ((annotation.endTime - annotation.startTime) * 100) / numberOfSamples
                     }%`,
                   }}
                 />

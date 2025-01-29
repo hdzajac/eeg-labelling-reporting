@@ -1,11 +1,12 @@
-import { Flex, Grid } from '@radix-ui/themes'
-import { useEffect, useRef, useState } from 'react'
+import { Button, Flex, Grid, Text } from '@radix-ui/themes'
+import { Camera } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer } from 'recharts'
 
-import { useTimelineStore } from '@/store/timeline'
 import AnnotationDialog from './AnnotationDialog'
 import { Annotation } from './AnnotationsTimeline'
 import TimeControl from './TimeControl'
+import useEDF from './useEDF'
 
 type Props = {
   edf: any
@@ -13,14 +14,10 @@ type Props = {
 }
 
 export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
-  const { position, interval } = useTimelineStore()
-
-  const [data, setData] = useState<{ x: number; y: number }[][]>([])
-  const [signalIndex, setSignalIndex] = useState(0)
-
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const { data, signalInfo } = useEDF(edf)
 
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
 
@@ -38,30 +35,16 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
     }
   }
 
-  const handleMouseUp = (e: any) => {
+  const handleMouseUp = (e: any, chartIndex: number) => {
     if (selection.start && selection.end) {
       setDialogOpen(true)
     }
 
-    setMenuPosition({ x: e.chartX, y: e.chartY })
+    const offset = 30 * chartIndex
+    setMenuPosition({ x: e.chartX, y: e.chartY + offset })
 
     setIsDragging(false)
   }
-
-  useEffect(() => {
-    const groupedBySeconds = groupDataBySeconds(edf._physicalSignals[signalIndex], interval)
-
-    const result = []
-    for (let i = 0; i < groupedBySeconds[position].length; i++) {
-      const value = groupedBySeconds[position][i]
-      result.push({
-        y: value,
-        x: i,
-      })
-    }
-
-    setData([result])
-  }, [signalIndex, interval, position])
 
   const handleSave = (annotation: Annotation) => {
     onAnnotationAdd(annotation)
@@ -73,15 +56,29 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
       <TimeControl />
 
       <Grid columns="250px 1fr" gap="2">
-        <Flex style={{}}></Flex>
-        <Flex direction="column" ref={captureRef} position="relative">
+        <Flex
+          direction="column"
+          height="100%"
+          style={{
+            borderRadius: 6,
+            backgroundColor: '#EFF7FD',
+          }}>
+          {signalInfo.map((s, index) => (
+            <Flex key={index} height="25px" justify="end" align="center" pr="2">
+              <Text size="2" style={{ color: 'var(--gray-9)' }}>
+                {s.label}
+              </Text>
+            </Flex>
+          ))}
+        </Flex>
+        <Flex direction="column" ref={captureRef} position="relative" mt="5px">
           {data.map((d, index) => (
             <Chart
               key={index}
               data={d}
               handleMouseDown={handleMouseDown}
               handleMouseMove={handleMouseMove}
-              handleMouseUp={handleMouseUp}
+              handleMouseUp={(e) => handleMouseUp(e, index)}
               selection={selection}
               isDragging={isDragging}
             />
@@ -100,7 +97,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
 }
 
 type ChartProps = {
-  data: [number, number][]
+  data: Array<{ x: number; y: number }>
   handleMouseDown: (e: any) => void
   handleMouseMove: (e: any) => void
   handleMouseUp: (e: any) => void
@@ -117,13 +114,13 @@ function Chart({
   isDragging,
 }: ChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={100}>
+    <ResponsiveContainer width="100%" height={30} style={{ marginTop: -5 }}>
       <LineChart
         // width={500}
-        height={100}
+        height={30}
         data={data}
         syncId="anyId"
-        // margin={0}
+        margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -145,31 +142,4 @@ function Chart({
       </LineChart>
     </ResponsiveContainer>
   )
-}
-
-function groupDataBySeconds(data: number[][], groupSize = 1) {
-  // Validate input
-  if (!Array.isArray(data) || groupSize < 1) {
-    throw new Error('Invalid input: data must be an array and groupSize must be at least 1')
-  }
-
-  // Initialize result array to store grouped data
-  const groupedData = []
-
-  // Iterate through the data in groups of specified size
-  for (let i = 0; i < data.length; i += groupSize) {
-    const group = data.slice(i, i + groupSize)
-    if (group.length < groupSize) break
-
-    // Initialize a flat array to store the grouped data
-    const flat = []
-
-    for (let i = 0; i < group.length; i++) {
-      flat.push(...group[i])
-    }
-
-    groupedData.push(flat)
-  }
-
-  return groupedData
 }

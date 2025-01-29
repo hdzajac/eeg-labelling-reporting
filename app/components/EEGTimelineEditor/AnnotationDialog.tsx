@@ -45,8 +45,8 @@ export default function AnnotationDialog({
         borderRadius: 6,
         padding: 10,
         backgroundColor: '#fff',
-        left: menuPosition?.x,
-        top: 0,
+        left: menuPosition?.x ?? 0,
+        top: menuPosition?.y ?? 0,
         zIndex: 100,
       }}>
       <Flex justify="between" align="center">
