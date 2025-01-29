@@ -29,7 +29,7 @@ export default function FeatureFlagDialog({}: Props) {
     <Dialog.Root>
       <Dialog.Trigger>
         <Button variant="ghost">
-          <Settings size={20} color="white" />
+          <Settings size={20} color="var(--gray-12)" />
         </Button>
       </Dialog.Trigger>
 

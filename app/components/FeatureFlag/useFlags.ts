@@ -9,6 +9,7 @@ export type Flags = {
   temperature: 1
   systemPrompt: string
   // UI
+  desampleRate: number
   streamData: boolean
 }
 
@@ -19,6 +20,7 @@ export const defaultFlags: Flags = {
   temperature: 1,
   systemPrompt,
   // UI
+  desampleRate: 2,
   streamData: true,
 }
 

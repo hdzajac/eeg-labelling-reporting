@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 
 import { useTimelineStore } from '@/store/timeline'
-
-const DESAMPLE_RATE = 1
+import { useFlags } from '../FeatureFlag/useFlags'
 
 export default function useEDF(edf: any) {
+  const { flags } = useFlags()
   const { position, interval } = useTimelineStore()
   const [data, setData] = useState<{ x: number; y: number }[][]>([])
 
@@ -14,14 +14,14 @@ export default function useEDF(edf: any) {
 
     const signalsGroups = []
     for (let i = 0; i < signals.length; i++) {
-      const group = groupDataBySeconds(signals[i], interval)
+      const group = groupDataBySeconds(signals[i], interval, flags.desampleRate)
 
       signalsGroups.push(group)
     }
     const dataAtPosition = signalsGroups.map((signal) => signal[position])
 
     setData(dataAtPosition)
-  }, [interval, position])
+  }, [interval, position, flags.desampleRate])
 
   return {
     data,
@@ -30,7 +30,7 @@ export default function useEDF(edf: any) {
   }
 }
 
-function groupDataBySeconds(data: number[][], groupSize = 1) {
+function groupDataBySeconds(data: number[][], groupSize = 1, desampleRate = 10) {
   if (!Array.isArray(data) || groupSize < 1) {
     throw new Error('Invalid input: data must be an array and groupSize must be at least 1')
   }
@@ -46,7 +46,7 @@ function groupDataBySeconds(data: number[][], groupSize = 1) {
 
     for (let i = 0; i < group.length; i++) {
       for (let j = 0; j < group[i].length; j++) {
-        if (j % DESAMPLE_RATE !== 0) {
+        if (j % desampleRate !== 0) {
           continue
         }
 
