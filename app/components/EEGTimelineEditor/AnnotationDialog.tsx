@@ -1,20 +1,28 @@
 import { Button, Flex, Heading } from '@radix-ui/themes'
 import { X } from 'lucide-react'
 
-import { ANNOTATION_TYPES, ANNOTATION_TYPES_LABELS } from '@/constants'
+import {
+  ANNOTATION_TYPES,
+  OBSERVATION_TYPES,
+  OBSERVATION_TYPES_LABELS,
+  STATE_TYPES,
+  STATE_TYPES_LABELS,
+} from '@/constants'
 import { useTimelineStore } from '@/store/timeline'
 import { Annotation } from './AnnotationsTimeline'
 
+type TMode = (typeof ANNOTATION_TYPES)[number] | false
+
 type Props = {
-  open: boolean
+  mode: TMode
   selection: { start: number; end: number } | null
   menuPosition: { x: number; y: number } | null
   onSave: (annotation: Annotation) => void
-  setOpen: (open: boolean) => void
+  setOpen: (mode: TMode) => void
 }
 
 export default function AnnotationDialog({
-  open,
+  mode,
   selection,
   menuPosition,
   setOpen,
@@ -23,7 +31,10 @@ export default function AnnotationDialog({
   const { position } = useTimelineStore()
 
   const handleConfirm = (type: string) => {
+    if (!mode) return
+
     onSave({
+      mode,
       type,
       startTime: selection?.start ?? 0,
       endTime: selection?.end ?? 0,
@@ -33,7 +44,10 @@ export default function AnnotationDialog({
     setOpen(false)
   }
 
-  if (!open) return
+  if (!mode) return
+
+  const typesList = mode === 'OBSERVATION' ? OBSERVATION_TYPES : STATE_TYPES
+  const typesLabelsList = mode === 'OBSERVATION' ? OBSERVATION_TYPES_LABELS : STATE_TYPES_LABELS
 
   return (
     <Flex
@@ -51,15 +65,16 @@ export default function AnnotationDialog({
       }}>
       <Flex justify="between" align="center">
         <Heading as="h3" size="1" style={{ textTransform: 'uppercase' }}>
-          Observations
+          {mode === 'OBSERVATION' ? 'Observation' : 'State'}
         </Heading>
         <Button variant="ghost" onClick={() => setOpen(false)}>
           <X size={16} />
         </Button>
       </Flex>
       <Flex direction="column" gap="1">
-        {ANNOTATION_TYPES.map((type) => (
+        {typesList.map((type) => (
           <Button
+            key={type}
             size="1"
             style={{
               backgroundColor: '#FFF9F2',
@@ -68,7 +83,7 @@ export default function AnnotationDialog({
               justifyContent: 'left',
             }}
             onClick={() => handleConfirm(type)}>
-            {ANNOTATION_TYPES_LABELS[type]}
+            {typesLabelsList[type]}
           </Button>
         ))}
       </Flex>

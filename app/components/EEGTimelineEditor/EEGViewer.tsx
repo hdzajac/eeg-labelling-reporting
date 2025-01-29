@@ -1,8 +1,8 @@
-import { Button, Flex, Grid, Text } from '@radix-ui/themes'
-import { Camera } from 'lucide-react'
+import { Flex, Grid, Text } from '@radix-ui/themes'
 import { useRef, useState } from 'react'
 import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer } from 'recharts'
 
+import { ANNOTATION_TYPES } from '@/constants'
 import AnnotationDialog from './AnnotationDialog'
 import { Annotation } from './AnnotationsTimeline'
 import TimeControl from './TimeControl'
@@ -16,7 +16,7 @@ type Props = {
 export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [isDragging, setIsDragging] = useState(false)
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState<(typeof ANNOTATION_TYPES)[number] | false>(false)
   const { data, signalInfo } = useEDF(edf)
 
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
@@ -26,7 +26,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
 
   const handleMouseDown = (e: any) => {
     setIsDragging(true)
-    setSelection({ start: e.activeLabel, end: null })
+    setSelection({ start: e.activeLabel, end: e.activeLabel })
   }
 
   const handleMouseMove = (e: any) => {
@@ -36,8 +36,12 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
   }
 
   const handleMouseUp = (e: any, chartIndex: number) => {
-    if (selection.start && selection.end) {
-      setDialogOpen(true)
+    if (selection.start === selection.end) {
+      // Single clic
+      setDialogOpen('OBSERVATION')
+    } else if (selection.start && selection.end) {
+      // Drag selection
+      setDialogOpen('STATE')
     }
 
     const offset = 30 * chartIndex
@@ -85,7 +89,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
           ))}
           <AnnotationDialog
             selection={selection}
-            open={dialogOpen}
+            mode={dialogOpen}
             setOpen={setDialogOpen}
             onSave={handleSave}
             menuPosition={menuPosition}
@@ -114,7 +118,7 @@ function Chart({
   isDragging,
 }: ChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={30} style={{ marginTop: -5 }}>
+    <ResponsiveContainer width="100%" height={30} style={{ marginTop: 0 }}>
       <LineChart
         // width={500}
         height={30}
