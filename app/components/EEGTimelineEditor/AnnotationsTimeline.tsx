@@ -1,23 +1,15 @@
 import { Box, Flex, Grid, Heading, Text } from '@radix-ui/themes'
 
 import {
-  ANNOTATION_TYPES,
   OBSERVATION_TYPES,
   OBSERVATION_TYPES_LABELS,
   STATE_TYPES,
   STATE_TYPES_LABELS,
 } from '@/constants'
+import { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
 import TimeIndicator from './TimeIndicator'
 import useEDF from './useEDF'
-
-export type Annotation = {
-  mode: (typeof ANNOTATION_TYPES)[number]
-  type: string
-  startTime: number
-  endTime: number
-  signalIndex: number // Index of the signal array
-}
 
 type Props = {
   annotations: Annotation[]

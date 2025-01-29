@@ -9,7 +9,7 @@ import {
   STATE_TYPES_LABELS,
 } from '@/constants'
 import { useTimelineStore } from '@/store/timeline'
-import { Annotation } from './AnnotationsTimeline'
+import { Annotation } from '@/store/annotations'
 
 type TMode = (typeof ANNOTATION_TYPES)[number] | false
 

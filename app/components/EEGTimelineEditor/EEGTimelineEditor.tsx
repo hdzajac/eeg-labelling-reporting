@@ -2,12 +2,13 @@ import { Box, Flex } from '@radix-ui/themes'
 import { EdfDecoder } from 'edfdecoder'
 import { useEffect, useRef, useState } from 'react'
 
-import TimelineAnnotations, { Annotation } from './AnnotationsTimeline'
+import useAnnotationsStore, { Annotation } from '@/store/annotations'
+import TimelineAnnotations from './AnnotationsTimeline'
 import EEGViewer from './EEGViewer'
 
 export function EEGTimelineEditor() {
   const [edf, setEdf] = useState(null)
-  const [annotations, setAnnotations] = useState<Annotation[]>([])
+  const { annotations, setAnnotations } = useAnnotationsStore()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const decoder = new EdfDecoder()

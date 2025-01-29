@@ -4,9 +4,10 @@ import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer } fr
 
 import { ANNOTATION_TYPES } from '@/constants'
 import AnnotationDialog from './AnnotationDialog'
-import { Annotation } from './AnnotationsTimeline'
 import TimeControl from './TimeControl'
 import useEDF from './useEDF'
+import EEGChart from './EEGChart'
+import { Annotation } from '@/store/annotations'
 
 type Props = {
   edf: any
@@ -68,7 +69,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
             backgroundColor: '#EFF7FD',
           }}>
           {signalInfo.map((s, index) => (
-            <Flex key={index} height="25px" justify="end" align="center" pr="2">
+            <Flex key={index} height="30px" justify="end" align="center" pr="2">
               <Text size="2" style={{ color: 'var(--gray-9)' }}>
                 {s.label}
               </Text>
@@ -77,7 +78,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
         </Flex>
         <Flex direction="column" ref={captureRef} position="relative" mt="5px">
           {data.map((d, index) => (
-            <Chart
+            <EEGChart
               key={index}
               data={d}
               handleMouseDown={handleMouseDown}
@@ -97,53 +98,5 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
         </Flex>
       </Grid>
     </div>
-  )
-}
-
-type ChartProps = {
-  data: Array<{ x: number; y: number }>
-  handleMouseDown: (e: any) => void
-  handleMouseMove: (e: any) => void
-  handleMouseUp: (e: any) => void
-  selection: { start: number | null; end: number | null }
-  isDragging: boolean
-}
-
-function Chart({
-  data,
-  handleMouseDown,
-  handleMouseMove,
-  handleMouseUp,
-  selection,
-  isDragging,
-}: ChartProps) {
-  return (
-    <ResponsiveContainer width="100%" height={30} style={{ marginTop: 0 }}>
-      <LineChart
-        // width={500}
-        height={30}
-        data={data}
-        syncId="anyId"
-        margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        style={{ userSelect: 'none' }}>
-        <CartesianGrid strokeDasharray="3 0" horizontal={false} />
-        {/* <XAxis dataKey="x" /> */}
-        {/* <YAxis /> */}
-
-        <Line type="monotone" dataKey="y" stroke="#8884d8" dot={false} />
-        {isDragging && selection.start && selection.start && (
-          <ReferenceArea
-            x1={selection.start}
-            x2={selection.end}
-            strokeOpacity={0.3}
-            fill="#8884d8"
-            fillOpacity={0.3}
-          />
-        )}
-      </LineChart>
-    </ResponsiveContainer>
   )
 }
