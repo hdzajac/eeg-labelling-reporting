@@ -40,7 +40,7 @@ export default function TimeControl({ duration }: Props) {
           <ChevronLeft size={18} />
         </Button>
 
-        <select value={currentStart} onChange={handleSelect} style={{ border: 0 }}>
+        <select value={currentStart * interval} onChange={handleSelect} style={{ border: 0 }}>
           {[...Array(Math.floor(duration / interval)).keys()].map((i) => (
             <option key={i} value={i * interval}>
               {formatTime(i * interval)} - {formatTime(i * interval + interval)}
