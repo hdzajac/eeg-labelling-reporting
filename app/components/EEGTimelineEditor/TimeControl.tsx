@@ -1,16 +1,18 @@
-import { useTimelineStore } from '@/store/timeline'
-import { Button, Flex, Grid, Text } from '@radix-ui/themes'
+import { Button, Flex, Grid } from '@radix-ui/themes'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
-import TimeIndicator from './TimeIndicator'
+
+import { useTimelineStore } from '@/store/timeline'
 import { formatTime } from '@/utils'
+import TimeIndicator from './TimeIndicator'
 
-type Props = {}
+type Props = {
+  duration: number
+}
 
-export default function TimeControl({}: Props) {
+export default function TimeControl({ duration }: Props) {
   const { position, interval, updatePosition } = useTimelineStore()
   const [currentStart, setCurrentStart] = useState(position)
-  const [currentEnd, setCurrentEnd] = useState(position + interval)
 
   const handleCursor = (direction: number) => {
     // Update the display range based on the new position
@@ -19,11 +21,15 @@ export default function TimeControl({}: Props) {
     if (newPosition < 0) return
 
     const newStart = newPosition * interval
-    const newEnd = newStart + interval
 
     setCurrentStart(newStart)
-    setCurrentEnd(newEnd)
+    updatePosition(newPosition)
+  }
 
+  const handleSelect = (e: any) => {
+    const newPosition = e.target.value / interval
+
+    setCurrentStart(newPosition)
     updatePosition(newPosition)
   }
 
@@ -33,9 +39,15 @@ export default function TimeControl({}: Props) {
         <Button variant="ghost" onClick={() => handleCursor(-1)}>
           <ChevronLeft size={18} />
         </Button>
-        <Text size="2">
-          {formatTime(currentStart)} - {formatTime(currentEnd)}
-        </Text>
+
+        <select value={currentStart} onChange={handleSelect} style={{ border: 0 }}>
+          {[...Array(Math.floor(duration / interval)).keys()].map((i) => (
+            <option key={i} value={i * interval}>
+              {formatTime(i * interval)} - {formatTime(i * interval + interval)}
+            </option>
+          ))}
+        </select>
+
         <Button variant="ghost" onClick={() => handleCursor(1)}>
           <ChevronRight size={18} />
         </Button>

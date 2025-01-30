@@ -18,7 +18,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dialogOpen, setDialogOpen] = useState<(typeof ANNOTATION_TYPES)[number] | false>(false)
-  const { data, signalInfo } = useEDF(edf)
+  const { data, signalInfo, duration } = useEDF(edf)
 
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
 
@@ -58,7 +58,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
 
   return (
     <div className="panel">
-      <TimeControl />
+      <TimeControl duration={duration} />
 
       <Grid columns="250px 1fr" gap="2">
         <Flex

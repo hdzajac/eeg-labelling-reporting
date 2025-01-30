@@ -27,6 +27,7 @@ export default function useEDF(edf: any) {
     data,
     signalInfo: edf._header.signalInfo.slice(0, edf?._physicalSignals.length - 1),
     numberOfSamples: data[0]?.length,
+    duration: edf?.getNumberOfRecords(), // assuming each record is 1 second,
   }
 }
 
