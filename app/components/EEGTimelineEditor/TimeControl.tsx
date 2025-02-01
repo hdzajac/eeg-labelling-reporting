@@ -14,15 +14,15 @@ export default function TimeControl({ duration }: Props) {
   const { position, interval, updatePosition } = useTimelineStore()
   const [currentStart, setCurrentStart] = useState(position)
 
+  const maxSteps = Math.floor(duration / interval)
+
   const handleCursor = (direction: number) => {
     // Update the display range based on the new position
     const newPosition = position + direction
 
-    if (newPosition < 0) return
+    if (newPosition < 0 || newPosition >= maxSteps) return
 
-    const newStart = newPosition * interval
-
-    setCurrentStart(newStart)
+    setCurrentStart(newPosition)
     updatePosition(newPosition)
   }
 
@@ -36,7 +36,7 @@ export default function TimeControl({ duration }: Props) {
   return (
     <Grid columns="250px 1fr" gap="2">
       <Flex align="center" mt="-2px">
-        <Button variant="ghost" onClick={() => handleCursor(-1)}>
+        <Button variant="ghost" onClick={() => handleCursor(-1)} disabled={position <= 0}>
           <ChevronLeft size={18} />
         </Button>
 
@@ -48,12 +48,12 @@ export default function TimeControl({ duration }: Props) {
           ))}
         </select>
 
-        <Button variant="ghost" onClick={() => handleCursor(1)}>
+        <Button variant="ghost" onClick={() => handleCursor(1)} disabled={position >= maxSteps - 1}>
           <ChevronRight size={18} />
         </Button>
       </Flex>
 
-      <TimeIndicator interval={interval} startTime={currentStart} />
+      <TimeIndicator interval={interval} startTime={currentStart * interval} />
     </Grid>
   )
 }

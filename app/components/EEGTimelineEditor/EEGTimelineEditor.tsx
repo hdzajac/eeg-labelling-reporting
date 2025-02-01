@@ -3,7 +3,7 @@ import { EdfDecoder } from 'edfdecoder'
 import { useEffect, useRef, useState } from 'react'
 
 import useAnnotationsStore, { Annotation } from '@/store/annotations'
-import TimelineAnnotations from './AnnotationsTimeline'
+import AnnotationsTimeline from './AnnotationsTimeline'
 import EEGViewer from './EEGViewer'
 
 export function EEGTimelineEditor() {
@@ -68,7 +68,7 @@ export function EEGTimelineEditor() {
   return (
     <Flex direction="column" gap="2">
       <EEGViewer edf={edf} onAnnotationAdd={handleAddAnnotation} />
-      <TimelineAnnotations
+      <AnnotationsTimeline
         edf={edf}
         annotations={annotations}
         onAnnotationAdd={handleAddAnnotation}

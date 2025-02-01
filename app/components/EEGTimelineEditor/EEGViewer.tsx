@@ -1,13 +1,13 @@
 import { Flex, Grid, Text } from '@radix-ui/themes'
 import { useRef, useState } from 'react'
-import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer } from 'recharts'
 
 import { ANNOTATION_TYPES } from '@/constants'
-import AnnotationDialog from './AnnotationDialog'
-import TimeControl from './TimeControl'
-import useEDF from './useEDF'
-import EEGChart from './EEGChart'
 import { Annotation } from '@/store/annotations'
+import AnnotationDialog from './AnnotationDialog'
+import EEGChart from './EEGChart'
+import TimeControl from './TimeControl'
+import TimelineOverview from './TimelineOverview'
+import useEDF from './useEDF'
 
 type Props = {
   edf: any
@@ -38,14 +38,14 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
 
   const handleMouseUp = (e: any, chartIndex: number) => {
     if (selection.start === selection.end) {
-      // Single clic
+      // Single click
       setDialogOpen('OBSERVATION')
     } else if (selection.start && selection.end) {
       // Drag selection
       setDialogOpen('STATE')
     }
 
-    const offset = 30 * chartIndex
+    const offset = 25 * chartIndex
     setMenuPosition({ x: e.chartX, y: e.chartY + offset })
 
     setIsDragging(false)
@@ -69,8 +69,8 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
             backgroundColor: '#EFF7FD',
           }}>
           {signalInfo.map((s, index) => (
-            <Flex key={index} height="30px" justify="end" align="center" pr="2">
-              <Text size="2" style={{ color: 'var(--gray-9)' }}>
+            <Flex key={index} height="30px" justify="end" align="center" pr="2" mt="-5px">
+              <Text size="1" style={{ color: 'var(--gray-9)' }}>
                 {s.label}
               </Text>
             </Flex>
@@ -97,6 +97,8 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
           />
         </Flex>
       </Grid>
+
+      <TimelineOverview edf={edf} />
     </div>
   )
 }

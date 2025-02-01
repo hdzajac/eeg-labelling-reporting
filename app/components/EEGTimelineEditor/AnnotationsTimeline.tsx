@@ -6,7 +6,7 @@ import {
   STATE_TYPES,
   STATE_TYPES_LABELS,
 } from '@/constants'
-import { Annotation } from '@/store/annotations'
+import useAnnotationsStore, { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
 import TimeIndicator from './TimeIndicator'
 import useEDF from './useEDF'

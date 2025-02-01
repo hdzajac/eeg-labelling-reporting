@@ -1,6 +1,14 @@
 import useAnnotationsStore, { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
-import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer } from 'recharts'
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceArea,
+  ReferenceLine,
+  ResponsiveContainer,
+  YAxis,
+} from 'recharts'
 
 type ChartProps = {
   data: Array<{ x: number; y: number }>
@@ -25,8 +33,8 @@ export default function EEGChart({
   const { observations, states } = annotations.reduce(
     (acc, a) => {
       if (a.signalIndex === position) {
-        acc.observations.push(a)
         if (a.mode === 'OBSERVATION') {
+          acc.observations.push(a)
         } else if (a.mode === 'STATE') {
           acc.states.push(a)
         }
@@ -36,10 +44,16 @@ export default function EEGChart({
     { observations: [] as Annotation[], states: [] as Annotation[] }
   )
 
+  // We need to use a custom reference area because of the negative margin
+  const max = Math.max(...data.map((d) => d.y))
+  const min = Math.min(...data.map((d) => d.y))
+
+  const range = Math.abs(min) + Math.abs(max)
+  const y2 = max - (5 * range) / 30
+
   return (
-    <ResponsiveContainer width="100%" height={30} style={{ marginTop: 0 }}>
+    <ResponsiveContainer width="100%" height={30} style={{ marginTop: -5 }}>
       <LineChart
-        // width={500}
         height={30}
         data={data}
         syncId="anyId"
@@ -49,14 +63,15 @@ export default function EEGChart({
         onMouseUp={handleMouseUp}
         style={{ userSelect: 'none' }}>
         <CartesianGrid strokeDasharray="3 0" horizontal={false} />
-        {/* <XAxis dataKey="x" /> */}
-        {/* <YAxis /> */}
+        <YAxis domain={[min, max]} hide={true} />
 
         <Line type="monotone" dataKey="y" stroke="#8884d8" dot={false} />
         {isDragging && selection.start && selection.start && (
           <ReferenceArea
             x1={selection.start}
             x2={selection.end}
+            y1={min}
+            y2={y2}
             strokeOpacity={0.3}
             fill="#8884d8"
             fillOpacity={0.3}
@@ -65,23 +80,26 @@ export default function EEGChart({
 
         {/** Add reference area for annoations */}
         {observations.map((annotation, index) => (
-          <ReferenceArea
-            key={index}
-            x1={annotation.startTime}
-            x2={annotation.startTime + 1}
-            fill="#FF8302"
+          <ReferenceLine
+            key={'OBS' + index}
+            x={annotation.startTime}
+            stroke="#FF8302"
+            strokeWidth={1.5}
+            opacity={0.7}
           />
         ))}
 
-        {/* {states.map((annotation, index) => (
+        {states.map((annotation, index) => (
           <ReferenceArea
-            key={index}
+            key={'STT' + index}
             x1={annotation.startTime}
             x2={annotation.endTime}
+            y1={min}
+            y2={y2}
             fill="#FF8302"
-            fillOpacity={0.1}
+            fillOpacity={0.2}
           />
-        ))} */}
+        ))}
       </LineChart>
     </ResponsiveContainer>
   )
