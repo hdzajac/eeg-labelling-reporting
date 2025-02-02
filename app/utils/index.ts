@@ -17,3 +17,7 @@ export function formatTime(seconds: number) {
   const secs = seconds % 60
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`
 }
+
+export function round(number: number, decimals: number = 2) {
+  return Math.round(number * 10 ** decimals) / 10 ** decimals
+}

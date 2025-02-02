@@ -1,35 +1,87 @@
-import { Heading } from '@radix-ui/themes'
+import { Button, Flex, Heading, Spinner, Text } from '@radix-ui/themes'
+import { useState } from 'react'
+
+import { useOpenAI } from '@/hooks/useOpenAI'
+import useAnnotationsStore from '@/store/annotations'
+import { useFlags } from './FeatureFlag/useFlags'
+
+import './Report.css'
+import { useTimelineStore } from '@/store/timeline'
 
 export default function Report() {
-  return (
-    <div className="panel">
-      <Heading as="h2">EEG Report</Heading>
-      <p>BrainCapture: A Medical Technology Company bringing affordable EEG to everyone</p>
-      <p>
-        Please be aware that this report is not a diagnosis but is input to support a diagnosis. The
-        receiver of this report must be a trained medical professional.
-      </p>
+  const { flags } = useFlags()
+  const { annotations } = useAnnotationsStore()
+  const { generateReport } = useOpenAI()
+  const [isLoading, setIsLoading] = useState(false)
+  const [report, setReport] = useState('')
+  const { numberOfSamples, interval, position } = useTimelineStore()
 
-      <Heading as="h3" size="3">
-        Patient information
-      </Heading>
-      <Heading as="h3" size="3">
-        Machine operator
-      </Heading>
-      <Heading as="h3" size="3">
-        EEG interpreter
-      </Heading>
-      <Heading as="h3" size="3">
-        Patient status
-      </Heading>
-      <Heading as="h3" size="3">
-        Patient history
-      </Heading>
-      <Heading as="h3" size="3">
-        Techincal information
-      </Heading>
-      <Heading as="h2">EEG findings</Heading>
-      <Heading as="h2">Conclusion</Heading>
+  const handleGenerate = async () => {
+    setIsLoading(true)
+    const response = await generateReport({
+      annotations,
+      timelineInfo: {
+        numberOfSamples: 520,
+        interval,
+        position,
+      },
+    })
+
+    if (flags.streamData) {
+      if (!response || !response.body) return null
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+
+        setReport((prev) => prev + chunk)
+      }
+    } else {
+      const content = await response.json()
+
+      setReport(content)
+    }
+
+    setIsLoading(false)
+
+    // Todo: Add screenshots
+  }
+
+  return (
+    <div className="panel Report">
+      <Flex justify="between">
+        <Heading as="h2" size="5" style={{ textTransform: 'uppercase' }}>
+          EEG Report
+        </Heading>
+        <Button variant="solid" onClick={handleGenerate}>
+          Generate report
+        </Button>
+      </Flex>
+      <Flex direction="column" mb="2">
+        <Text style={{ color: 'var(--gray-9)' }}>
+          BrainCapture: A Medical Technology Company bringing affordable EEG to everyone
+        </Text>
+        <Text>
+          Please be aware that this report is not a diagnosis but is input to support a diagnosis.
+          The receiver of this report must be a trained medical professional.
+        </Text>
+      </Flex>
+
+      {isLoading ? <Spinner /> : null}
+
+      {report !== '' && (
+        <div>
+          <Heading mt="4" as="h3" size="4">
+            EEG finding
+          </Heading>
+          <div className="Report-content" dangerouslySetInnerHTML={{ __html: report }} />
+        </div>
+      )}
     </div>
   )
 }

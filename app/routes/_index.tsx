@@ -10,7 +10,7 @@ import AnnotationEditor from '@/components/AnnotationEditor'
 export default function Index() {
   return (
     <Flex style={{ backgroundColor: 'var(--surface)' }} height="100vh" direction="column">
-      <Flex gap="2" direction="column" width="1200px" style={{ margin: '0 auto' }}>
+      <Flex gap="2" direction="column" width="1200px" ml="auto" mr="auto" pb="6">
         <Header />
 
         <ClinicalInfo />

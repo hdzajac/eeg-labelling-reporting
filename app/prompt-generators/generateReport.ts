@@ -2,41 +2,45 @@ import { createOpenAI } from '@ai-sdk/openai'
 import { generateText, streamText } from 'ai'
 
 import type { Flags } from '@/components/FeatureFlag/useFlags'
-import { EvaluationLabels, SkinTypes } from '@/constants'
+import { OBSERVATION_TYPES_LABELS, STATE_TYPES_LABELS } from '@/constants'
 import { GeneratePayload } from '@/hooks/useOpenAI'
-import { EvaluationReport, Patient } from '@/store/types'
+import { Annotation } from '@/store/annotations'
+import { round } from '@/utils'
 import systemPrompt from './helpers/system-prompt'
 
 const openai = createOpenAI({
   fetch: fetch,
 })
 
-export default async function ({ evaluation, patient, sections }: GeneratePayload, flags: Flags) {
-  console.log('PAYLOAD', flags)
-
-  const evaluationPrompt = (Object.keys(evaluation) as Array<keyof EvaluationReport>)
-    .filter((key) => evaluation[key] !== '')
-    .map((key) => {
-      return `
-      - ${EvaluationLabels[key]}: ${evaluation[key]}`
-    })
+export default async function ({ annotations, timelineInfo }: GeneratePayload, flags: Flags) {
+  console.log('PAYLOAD', annotations, flags, timelineInfo)
 
   const prompt = `
-      ## Report structure
-      ${generatePatientPrompt(patient)}
-      
-      ## Condition details: ${evaluationPrompt}
+      ${generateAnnotationsSummary(annotations, timelineInfo)}
 
       ## Formatting requirements
       - Use <h2> tags for section headings and <p> tags for paragraphs.
-      - Highlight input data used in the report with <strong> tags.
       
-      ${generateExamplesPrompt(sections, flags.includeExamples)}`
+      ## Example
+      
+      **Background feature**: The awake record consists of bilaterally symmetrical moderate amplitude
+      background activity with unreactive 9Hz posterior dominant rhythm with normal anterior-posterior gradient.
+      18-20Hz beta activities were noted with predominance over the bilateral frontal area. Few movement and
+      muscle activities were recorded.
+
+      **Sleep Features**: No sleep features were recorded.
+      **Photic Stimulation**: Not done.
+      **Hyperventilation**: Done for 3 minutes of poor effort yielding unremarkable findings.
+      **Clinical events**: No clinical events were recorded.
+      **Abnormal Features**: No abnormal activities were recorded.
+
+      **Conclusion**: The current Awake EEG is within normal limits. Clinical correlation is advised.
+      `
 
   console.log('PROMPT>>>', prompt)
 
   if (process.env.TESTING_MODE === 'true') {
-    return testingMode()
+    return testingMode(flags.streamData)
   }
 
   if (flags.streamData) {
@@ -62,60 +66,103 @@ export default async function ({ evaluation, patient, sections }: GeneratePayloa
   }
 }
 
-function testingMode() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(
-        `<h2>Assessment</h2>
-          <p>The patient is a <strong>62-year-old male</strong> with a <strong>skin type I</strong>. Upon examination, the lesion displays a <strong>sharp border</strong>, lacks a <strong>pigment network</strong>, and presents with <strong>milia-like cysts</strong>. Additionally, there are noted <strong>fat fingers (6 o’clock)</strong>. Based on these objective findings, the diagnostic evaluation supports the clinical impression of <strong>seborrheic keratosis</strong>.</p>
-          <p>Given the benign nature of <strong>seborrheic keratosis</strong> and the absence of symptoms, I suggest no immediate treatment is necessary. The lesion's characteristics are consistent with common presentations and do not indicate malignancy.</p>
-          <h2>Primary Plan</h2>
-          <p>The primary plan involves <strong>no treatment</strong> at this time for the <strong>seborrheic keratosis</strong>. The patient should be advised to monitor the lesion for any changes, such as increased size, change in color, or any irritation. A follow-up appointment should be scheduled in <strong>6 to 12 months</strong> for re-evaluation or sooner if any concerning changes occur. Additionally, educating the patient on skin cancer awareness and encouraging regular skin examinations will be beneficial for ongoing skin health.</p>`
-      )
-    }, 200)
-  })
-}
+function testingMode(useStream: boolean = false) {
+  // Create a readable stream to generate data
+  const content = `
+      <h2>Background feature</h2>
+      <p>The awake record consists of bilaterally symmetrical moderate amplitude background activity with unreactive 9Hz posterior dominant rhythm with normal anterior-posterior gradient.
+      18-20Hz beta activities were noted with predominance over the bilateral frontal area. Few movement and muscle activities were recorded.</p>
+      <h2>Sleep Features</h2>
+      <p>No sleep features were recorded.</p>
+      <h2>Photic Stimulation</h2>
+      <p>Not done.</p>
+      <h2>Hyperventilation</h2>
+      <p>Done for 3 minutes of poor effort yielding unremarkable findings.</p>
+      <h2>Clinical events</h2>
+      <p>No clinical events were recorded.</p>
+      <h2>Abnormal Features</h2>
+      <p>No abnormal activities were recorded.</p>`
 
-function generatePatientPrompt(patient: Patient | undefined) {
-  if (!patient) return ''
+  if (useStream) {
+    const words = content.split(' ')
 
-  let patientPrompt = `
-      ## Patient data
-      - Gender: ${patient.gender}
-      - Age: ${patient.age} years old
-      - Skin type: ${SkinTypes[patient.skinType]}
-      `
-
-  if (patient.familyWithMelanoma) {
-    patientPrompt += '- The patient has a family history of melanoma.'
-  }
-
-  if (patient.previousMelanoma) {
-    patientPrompt += '- The patient has had a previous malignant melanoma or skin cancer.'
-  }
-
-  return patientPrompt
-}
-
-function generateExamplesPrompt(sections: string[], includeExamples: string = '1') {
-  if (includeExamples === '1') return ''
-
-  const examplesKey = includeExamples === '2' ? 'examplesShort' : 'examplesLong'
-
-  const examplesPrompt = sections
-    .map((section) => {
-      const sec = sectionsInfo.find((info) => info.type === section)
-
-      if (!sec) return ''
-
-      return `
-      ### ${sec.title} examples
-      - ${sec[examplesKey].join('\n      - ')}
-    `
+    const stream = new ReadableStream({
+      start(controller) {
+        let index = 0
+        function push() {
+          if (index < words.length) {
+            controller.enqueue(words[index] + ' ')
+            index++
+            setTimeout(push, 100) // Delay for smooth streaming effect
+          } else {
+            controller.close()
+          }
+        }
+        push()
+      },
     })
-    .join('\n')
 
-  return `## Writing style
-      - Write the report in the style of the following examples:
-      ${examplesPrompt}`
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      },
+    })
+  } else {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(content)
+      }, 200)
+    })
+  }
+}
+
+function generateAnnotationsSummary(
+  annotations: Annotation[],
+  timelineInfo: GeneratePayload['timelineInfo']
+) {
+  if (annotations.length === 0) return ''
+
+  let summary = ''
+
+  const observations = annotations.filter((a) => a.mode === 'OBSERVATION')
+  const states = annotations.filter((a) => a.mode === 'STATE')
+
+  if (observations.length > 0) {
+    summary += `
+      ## Observation
+      ${observations
+        .map(
+          (a) =>
+            `- ${OBSERVATION_TYPES_LABELS[a.type]} at ${getTime(
+              a.startTime,
+              a.signalIndex,
+              timelineInfo
+            )}s`
+        )
+        .join('\n')}
+    `
+  }
+
+  if (states.length > 0) {
+    summary += `
+      ## State
+      ${states
+        .map(
+          (a) =>
+            `- ${STATE_TYPES_LABELS[a.type]} from ${getTime(
+              a.startTime,
+              a.signalIndex,
+              timelineInfo
+            )}s to ${getTime(a.endTime, a.signalIndex, timelineInfo)}s`
+        )
+        .join('\n')}
+    `
+  }
+
+  return summary
+}
+
+function getTime(time: number, signalIndex: number, timelineInfo: GeneratePayload['timelineInfo']) {
+  return round(time / timelineInfo.numberOfSamples + signalIndex * timelineInfo.interval)
 }
