@@ -1,8 +1,11 @@
-import { Flex, Grid, Text } from '@radix-ui/themes'
+import { Button, Flex, Grid, Text } from '@radix-ui/themes'
+import html2canvas from 'html2canvas-pro'
+import { Camera } from 'lucide-react'
 import { useRef, useState } from 'react'
 
 import { ANNOTATION_TYPES } from '@/constants'
-import { Annotation } from '@/store/annotations'
+import useAnnotationsStore, { Annotation } from '@/store/annotations'
+import { useTimelineStore } from '@/store/timeline'
 import AnnotationDialog from './AnnotationDialog'
 import EEGChart from './EEGChart'
 import TimeControl from './TimeControl'
@@ -19,11 +22,11 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
   const [isDragging, setIsDragging] = useState(false)
   const [dialogOpen, setDialogOpen] = useState<(typeof ANNOTATION_TYPES)[number] | false>(false)
   const { data, signalInfo, duration } = useEDF(edf)
+  const { addScreenshot } = useAnnotationsStore()
+  const { position, interval } = useTimelineStore()
+  const captureRef = useRef<HTMLDivElement>(null)
 
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
-
-  const captureRef = useRef<any>(null)
-  const [screenshot, setScreenshot] = useState(null)
 
   const handleMouseDown = (e: any) => {
     setIsDragging(true)
@@ -56,18 +59,38 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
     setDialogOpen(false)
   }
 
+  const handleCaptureScreenshot = () => {
+    const element = captureRef.current
+
+    if (element) {
+      html2canvas(element).then((canvas) => {
+        const image = canvas.toDataURL('image/png')
+        addScreenshot({
+          image,
+          time: position * interval,
+        })
+      })
+    }
+  }
+
   return (
     <div className="panel">
       <TimeControl duration={duration} />
 
       <Grid columns="250px 1fr" gap="2">
         <Flex
+          position="relative"
           direction="column"
           height="100%"
           style={{
             borderRadius: 6,
             backgroundColor: '#EFF7FD',
           }}>
+          <Flex position="absolute" left="2" top="2">
+            <Button variant="soft" onClick={handleCaptureScreenshot}>
+              <Camera size={18} />
+            </Button>
+          </Flex>
           {signalInfo.map((s, index) => (
             <Flex key={index} height="30px" justify="end" align="center" pr="2" mt="-5px">
               <Text size="1" style={{ color: 'var(--gray-9)' }}>

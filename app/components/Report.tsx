@@ -1,4 +1,4 @@
-import { Button, Flex, Heading, Spinner, Text } from '@radix-ui/themes'
+import { Box, Button, Flex, Heading, Spinner, Text } from '@radix-ui/themes'
 import { useState } from 'react'
 
 import { useOpenAI } from '@/hooks/useOpenAI'
@@ -7,14 +7,15 @@ import { useFlags } from './FeatureFlag/useFlags'
 
 import './Report.css'
 import { useTimelineStore } from '@/store/timeline'
+import { formatTime } from '@/utils'
 
 export default function Report() {
   const { flags } = useFlags()
-  const { annotations } = useAnnotationsStore()
+  const { annotations, screenshots } = useAnnotationsStore()
   const { generateReport } = useOpenAI()
   const [isLoading, setIsLoading] = useState(false)
   const [report, setReport] = useState('')
-  const { numberOfSamples, interval, position } = useTimelineStore()
+  const { interval } = useTimelineStore()
 
   const handleGenerate = async () => {
     setIsLoading(true)
@@ -23,7 +24,6 @@ export default function Report() {
       timelineInfo: {
         numberOfSamples: 520,
         interval,
-        position,
       },
     })
 
@@ -48,8 +48,6 @@ export default function Report() {
     }
 
     setIsLoading(false)
-
-    // Todo: Add screenshots
   }
 
   return (
@@ -80,6 +78,20 @@ export default function Report() {
             EEG finding
           </Heading>
           <div className="Report-content" dangerouslySetInnerHTML={{ __html: report }} />
+
+          {screenshots.length > 0 && (
+            <>
+              <Heading mt="4" as="h3" size="4">
+                Relevant EEG Pages
+              </Heading>
+              {screenshots.map((s) => (
+                <Box>
+                  <Text>Timestamp: {formatTime(s.time)}</Text>
+                  <img src={s.image} style={{ width: '100%' }} />
+                </Box>
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>

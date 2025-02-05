@@ -10,6 +10,9 @@ declare module '@remix-run/node' {
 }
 
 export default defineConfig({
+  ssr: {
+    noExternal: ['react-dropzone'],
+  },
   plugins: [
     remix({
       presets: [vercelPreset()],

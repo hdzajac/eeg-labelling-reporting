@@ -8,7 +8,7 @@ import EEGViewer from './EEGViewer'
 
 export function EEGTimelineEditor() {
   const [edf, setEdf] = useState(null)
-  const { annotations, setAnnotations } = useAnnotationsStore()
+  const { annotations, screenshots, setAnnotations, addScreenshot } = useAnnotationsStore()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const decoder = new EdfDecoder()
