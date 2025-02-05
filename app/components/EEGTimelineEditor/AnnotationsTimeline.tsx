@@ -1,6 +1,7 @@
 import { Box, Flex, Grid, Heading, Text } from '@radix-ui/themes'
 
 import {
+  OBSERVATION_COLORS,
   OBSERVATION_TYPES,
   OBSERVATION_TYPES_LABELS,
   STATE_TYPES,
@@ -35,7 +36,7 @@ export default function AnnotationsTimeline({
     <div className="panel">
       <Grid gap="2" columns="250px 1fr">
         <Flex></Flex>
-        <TimeIndicator interval={interval} startTime={position * interval} />
+        {/* <TimeIndicator interval={interval} startTime={position * interval} /> */}
       </Grid>
 
       <Heading as="h3" size="3">
@@ -98,8 +99,8 @@ export default function AnnotationsTimeline({
                     height: '10px',
                     width: '10px',
                     borderRadius: 10,
-                    backgroundColor: '#D0E3FF',
-                    border: '1px solid #4F678A',
+                    backgroundColor: OBSERVATION_COLORS[annotation.type],
+                    border: '1px solid rgba(0, 0, 0, 0.5)',
                     marginLeft: '-4px',
                     left: `${(annotation.startTime * 100) / numberOfSamples}%`,
                   }}

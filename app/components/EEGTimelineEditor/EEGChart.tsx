@@ -1,3 +1,4 @@
+import { OBSERVATION_COLORS } from '@/constants'
 import useAnnotationsStore, { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
 import {
@@ -83,7 +84,7 @@ export default function EEGChart({
           <ReferenceLine
             key={'OBS' + index}
             x={annotation.startTime}
-            stroke="#FF8302"
+            stroke={OBSERVATION_COLORS[annotation.type]}
             strokeWidth={1.5}
             opacity={0.7}
           />

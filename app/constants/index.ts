@@ -18,6 +18,15 @@ export const OBSERVATION_TYPES_LABELS: Record<string, string> = {
   EYE_BLINKING: 'Eye blinking',
 }
 
+export const OBSERVATION_COLORS = {
+  PDR: '#92DB16',
+  AWAKE: '#A6CD12',
+  INTERICTAL: '#BBBF0F',
+  EPISODE_EPILEPTIC: '#D1AE0A',
+  EPISODE_OTHER: '#E79E06',
+  EYE_BLINKING: '#FE8D02',
+} as const
+
 export const STATE_TYPES = ['SLEEP', 'PHOTIC_STIMULATION', 'HYPERVENTILATION'] as const
 
 export const STATE_TYPES_LABELS: Record<string, string> = {
