@@ -6,14 +6,13 @@ import {
   STATE_TYPES,
   STATE_TYPES_LABELS,
 } from '@/constants'
-import useAnnotationsStore, { Annotation } from '@/store/annotations'
+import { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
 import TimeIndicator from './TimeIndicator'
 import useEDF from './useEDF'
 
 type Props = {
   annotations: Annotation[]
-  edf: any
   onAnnotationAdd: (ann: Annotation) => void
   onAnnotationUpdate: (ann: Annotation) => void
   onAnnotationDelete: (ann: Annotation) => void
@@ -21,13 +20,12 @@ type Props = {
 
 export default function AnnotationsTimeline({
   annotations,
-  edf,
   onAnnotationAdd,
   onAnnotationUpdate,
   onAnnotationDelete,
 }: Props) {
   const { position, interval } = useTimelineStore()
-  const { numberOfSamples } = useEDF(edf)
+  const { numberOfSamples } = useEDF()
 
   const currAnnotations = annotations.filter((ann) => ann.signalIndex === position)
 

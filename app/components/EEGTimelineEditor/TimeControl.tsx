@@ -1,6 +1,5 @@
 import { Button, Flex, Grid } from '@radix-ui/themes'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useState } from 'react'
 
 import { useTimelineStore } from '@/store/timeline'
 import { formatTime } from '@/utils'
@@ -12,7 +11,6 @@ type Props = {
 
 export default function TimeControl({ duration }: Props) {
   const { position, interval, updatePosition } = useTimelineStore()
-  const [currentStart, setCurrentStart] = useState(position)
 
   const maxSteps = Math.floor(duration / interval)
 
@@ -22,14 +20,12 @@ export default function TimeControl({ duration }: Props) {
 
     if (newPosition < 0 || newPosition >= maxSteps) return
 
-    setCurrentStart(newPosition)
     updatePosition(newPosition)
   }
 
   const handleSelect = (e: any) => {
     const newPosition = e.target.value / interval
 
-    setCurrentStart(newPosition)
     updatePosition(newPosition)
   }
 
@@ -40,7 +36,7 @@ export default function TimeControl({ duration }: Props) {
           <ChevronLeft size={18} />
         </Button>
 
-        <select value={currentStart * interval} onChange={handleSelect} style={{ border: 0 }}>
+        <select value={position * interval} onChange={handleSelect} style={{ border: 0 }}>
           {[...Array(Math.floor(duration / interval)).keys()].map((i) => (
             <option key={i} value={i * interval}>
               {formatTime(i * interval)} - {formatTime(i * interval + interval)}
@@ -53,7 +49,7 @@ export default function TimeControl({ duration }: Props) {
         </Button>
       </Flex>
 
-      <TimeIndicator interval={interval} startTime={currentStart * interval} />
+      <TimeIndicator interval={interval} startTime={position * interval} />
     </Grid>
   )
 }

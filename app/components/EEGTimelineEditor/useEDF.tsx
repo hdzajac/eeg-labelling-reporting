@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 
+import { useEDFStore } from '@/store/edf'
 import { useTimelineStore } from '@/store/timeline'
 import { useFlags } from '../FeatureFlag/useFlags'
 
-export default function useEDF(edf: any) {
+export default function useEDF() {
+  const { edf } = useEDFStore()
   const { flags } = useFlags()
   const { position, interval } = useTimelineStore()
   const [data, setData] = useState<{ x: number; y: number }[][]>([])

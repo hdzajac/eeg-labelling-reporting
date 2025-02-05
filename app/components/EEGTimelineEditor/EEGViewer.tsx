@@ -13,15 +13,14 @@ import TimelineOverview from './TimelineOverview'
 import useEDF from './useEDF'
 
 type Props = {
-  edf: any
   onAnnotationAdd: (ann: Annotation) => void
 }
 
-export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
+export default function EEGViewer({ onAnnotationAdd }: Props) {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dialogOpen, setDialogOpen] = useState<(typeof ANNOTATION_TYPES)[number] | false>(false)
-  const { data, signalInfo, duration } = useEDF(edf)
+  const { data, signalInfo, duration } = useEDF()
   const { addScreenshot } = useAnnotationsStore()
   const { position, interval } = useTimelineStore()
   const captureRef = useRef<HTMLDivElement>(null)
@@ -121,7 +120,7 @@ export default function EEGViewer({ edf, onAnnotationAdd }: Props) {
         </Flex>
       </Grid>
 
-      <TimelineOverview edf={edf} />
+      <TimelineOverview />
     </div>
   )
 }

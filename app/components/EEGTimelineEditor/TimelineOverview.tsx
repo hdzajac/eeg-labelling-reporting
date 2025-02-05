@@ -5,14 +5,12 @@ import useAnnotationsStore from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
 import useEDF from './useEDF'
 
-type Props = {
-  edf: any
-}
+type Props = {}
 
-export default function TimelineOverview({ edf }: Props) {
-  const { annotations } = useAnnotationsStore()
-  const { interval } = useTimelineStore()
-  const { duration } = useEDF(edf)
+export default function TimelineOverview({}: Props) {
+  const { annotations, screenshots } = useAnnotationsStore()
+  const { interval, updatePosition } = useTimelineStore()
+  const { duration } = useEDF()
 
   const [currentTime, setCurrentTime] = useState(0)
   const timelineRef = useRef(null)
