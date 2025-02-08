@@ -28,6 +28,8 @@ export default function AnnotationsTimeline({
   const { interval, updatePosition } = useTimelineStore()
   const { duration } = useEDF()
 
+  // console.log('annotations', annotations)
+
   const tickInterval = 300 // 5 minutes = 300 seconds
 
   return (
@@ -97,10 +99,29 @@ export default function AnnotationsTimeline({
             <VerticalLines tickInterval={tickInterval} duration={duration} />
 
             {annotations
-              .filter((annotation) => annotation.type === type && annotation.mode === 'OBSERVATION')
+              .filter(
+                (annotation) =>
+                  (annotation.type === type && annotation.mode === 'OBSERVATION') ||
+                  (annotation.type === type && annotation.mode) === 'AI'
+              )
               .map((annotation, idx) => {
                 const time = annotation.startTime / 256 + annotation.signalIndex * interval
                 const leftPos = `${(time / duration) * 100}%`
+
+                const defaultStyles = {
+                  backgroundColor: OBSERVATION_COLORS[annotation.type],
+                  border: '1px solid rgba(0, 0, 0, 0.5)',
+                }
+
+                const aiStyles = {
+                  height: '14px',
+                  width: '14px',
+                  backgroundColor: '#FFEB78',
+                  border: '1px dashed #E5A00D',
+                  marginTop: '-3px',
+                }
+
+                const styles = annotation.mode === 'AI' ? aiStyles : defaultStyles
 
                 return (
                   <Box
@@ -109,15 +130,18 @@ export default function AnnotationsTimeline({
                     position="absolute"
                     left={leftPos}
                     style={{
+                      textAlign: 'center',
                       cursor: 'pointer',
                       height: '10px',
                       width: '10px',
-                      borderRadius: 10,
-                      backgroundColor: OBSERVATION_COLORS[annotation.type],
-                      border: '1px solid rgba(0, 0, 0, 0.5)',
+                      borderRadius: 12,
+                      fontSize: '8px',
                       marginLeft: '-4px',
-                    }}
-                  />
+
+                      ...styles,
+                    }}>
+                    {annotation.mode === 'AI' && 'AI'}
+                  </Box>
                 )
               })}
             <Box

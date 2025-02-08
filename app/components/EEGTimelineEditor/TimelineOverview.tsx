@@ -1,5 +1,5 @@
 import { Box, Flex, Grid, Text } from '@radix-ui/themes'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import useAnnotationsStore from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
@@ -9,13 +9,17 @@ type Props = {}
 
 export default function TimelineOverview({}: Props) {
   const { annotations, screenshots } = useAnnotationsStore()
-  const { interval, updatePosition } = useTimelineStore()
+  const { interval, position, updatePosition } = useTimelineStore()
   const { duration } = useEDF()
 
-  const [currentTime, setCurrentTime] = useState(0)
+  const [currentTime, setCurrentTime] = useState(position * interval)
   const timelineRef = useRef(null)
 
   const tickInterval = 300 // 5 minutes = 300 seconds
+
+  useEffect(() => {
+    setCurrentTime(position * interval)
+  }, [position])
 
   const handleSeek = (e) => {
     if (!timelineRef.current) return
@@ -24,8 +28,6 @@ export default function TimelineOverview({}: Props) {
     const newTime = Math.floor((clickX / rect.width) * duration)
     setCurrentTime(newTime)
   }
-
-  const minutes = Math.floor(duration / 60)
 
   return (
     <Grid columns="250px 1fr" gap="2" mt="2">

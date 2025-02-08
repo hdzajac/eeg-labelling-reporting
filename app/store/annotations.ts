@@ -21,8 +21,18 @@ interface AnnotationStore {
   addScreenshot: (screenshot: Screenshot) => void
 }
 
+const sampleAnnotations: Annotation[] = [
+  {
+    mode: 'AI',
+    type: 'PDR',
+    startTime: 531,
+    endTime: 531,
+    signalIndex: 78,
+  },
+]
+
 const useAnnotationsStore = create<AnnotationStore>((set) => ({
-  annotations: [],
+  annotations: sampleAnnotations,
   screenshots: [],
   setAnnotations: (annotations) => set({ annotations }),
   addScreenshot: (image) =>

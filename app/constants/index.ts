@@ -1,4 +1,4 @@
-export const ANNOTATION_TYPES = ['OBSERVATION', 'STATE'] as const
+export const ANNOTATION_TYPES = ['OBSERVATION', 'STATE', 'AI'] as const
 
 export const OBSERVATION_TYPES = [
   'PDR',
