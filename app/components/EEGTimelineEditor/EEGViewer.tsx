@@ -101,6 +101,7 @@ export default function EEGViewer({ onAnnotationAdd }: Props) {
           {data.map((d, index) => (
             <EEGChart
               key={index}
+              chartIndex={index}
               data={d}
               handleMouseDown={handleMouseDown}
               handleMouseMove={handleMouseMove}

@@ -1,8 +1,9 @@
-import { OBSERVATION_COLORS } from '@/constants'
+import { OBSERVATION_COLORS, OBSERVATION_TYPES_LABELS, STATE_TYPES_LABELS } from '@/constants'
 import useAnnotationsStore, { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
 import {
   CartesianGrid,
+  Label,
   Line,
   LineChart,
   ReferenceArea,
@@ -12,6 +13,7 @@ import {
 } from 'recharts'
 
 type ChartProps = {
+  chartIndex: number
   data: Array<{ x: number; y: number }>
   handleMouseDown: (e: any) => void
   handleMouseMove: (e: any) => void
@@ -21,6 +23,7 @@ type ChartProps = {
 }
 
 export default function EEGChart({
+  chartIndex,
   data,
   handleMouseDown,
   handleMouseMove,
@@ -86,8 +89,18 @@ export default function EEGChart({
             x={annotation.startTime}
             stroke={OBSERVATION_COLORS[annotation.type]}
             strokeWidth={1.5}
-            opacity={0.7}
-          />
+            opacity={0.7}>
+            {chartIndex === 0 && (
+              <Label
+                enableBackground="#f0f"
+                value={OBSERVATION_TYPES_LABELS[annotation.type]}
+                position="right"
+                content={(props) => (
+                  <CustomLabel fill={OBSERVATION_COLORS[annotation.type]} {...props} />
+                )}
+              />
+            )}
+          </ReferenceLine>
         ))}
 
         {states.map((annotation, index) => (
@@ -98,10 +111,36 @@ export default function EEGChart({
             y1={min}
             y2={y2}
             fill="#FF8302"
-            fillOpacity={0.2}
-          />
+            fillOpacity={0.2}>
+            {chartIndex === 0 && (
+              <Label
+                enableBackground="#f0f"
+                value={STATE_TYPES_LABELS[annotation.type]}
+                position="right"
+                content={(props) => <CustomLabel {...props} />}
+              />
+            )}
+          </ReferenceArea>
         ))}
       </LineChart>
     </ResponsiveContainer>
+  )
+}
+
+function CustomLabel({ fill = '#FF8302', ...props }: any) {
+  return (
+    <g>
+      <rect
+        x={props.viewBox.x}
+        y={props.viewBox.y}
+        fill={fill}
+        width={115}
+        height={20}
+        opacity={0.8}
+      />
+      <text x={props.viewBox.x} y={props.viewBox.y} fill="#fff" dy={13} dx={8} fontSize={10}>
+        {props.value}
+      </text>
+    </g>
   )
 }
