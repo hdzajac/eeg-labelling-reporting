@@ -30,9 +30,7 @@ export default function TimelineOverview({}: Props) {
   return (
     <Grid columns="250px 1fr" gap="2" mt="2">
       <Flex direction="column" height="100%" style={{}} justify="end" align="end">
-        <Text size="1" style={{ color: 'var(--gray-9)' }}>
-          Minutes
-        </Text>
+        <Text size="1" style={{ color: 'var(--gray-9)' }}></Text>
       </Flex>
       <Flex direction="column">
         <Box style={{ width: '100%', maxWidth: '1000px', margin: 'auto' }}>
@@ -42,10 +40,9 @@ export default function TimelineOverview({}: Props) {
             style={{
               position: 'relative',
               width: '100%',
-              height: '30px',
+              height: '20px',
               background: 'var(--gray-2)',
               borderRadius: '5px',
-              overflow: 'hidden',
               cursor: 'pointer',
             }}>
             {/* Vertical Lines for Ticks */}
@@ -67,15 +64,51 @@ export default function TimelineOverview({}: Props) {
             })}
 
             {/* Playhead */}
-            {/* <div
-                style={{
-                  position: 'absolute',
-                  left: `${(currentTime / duration) * 100}%`,
-                  height: '100%',
-                  width: '2px',
-                  background: 'red',
-                }}
-              /> */}
+            <Box
+              className="TimelimeOverview-current"
+              width={`${(interval / duration) * 100}%`}
+              style={{
+                position: 'absolute',
+                left: `${(currentTime / duration) * 100}%`,
+                height: '100%',
+              }}
+            />
+
+            {Array.from({ length: Math.floor(duration / interval) + 1 }, (_, idx) => idx).map(
+              (s, idx) => {
+                const leftPos = `${((idx * interval) / duration) * 100}%`
+
+                return (
+                  <Box
+                    onClick={() => updatePosition(idx)}
+                    position="absolute"
+                    left={leftPos}
+                    height="100%"
+                    className="TimelimeOverview-steps"
+                    width={`${(interval / duration) * 100}%`}
+                    key={idx}
+                  />
+                )
+              }
+            )}
+
+            {screenshots.map((s, idx) => {
+              const leftPos = `${(s.time / duration) * 100}%`
+
+              return (
+                <Box
+                  position="absolute"
+                  left={leftPos}
+                  height="100%"
+                  width={`${(interval / duration) * 100}%`}
+                  key={idx}
+                  style={{
+                    background: 'blue',
+                    opacity: 0.1,
+                  }}
+                />
+              )
+            })}
 
             {annotations.map((ann, idx) => {
               const time = ann.startTime / 256 + ann.signalIndex * interval
@@ -117,7 +150,6 @@ export default function TimelineOverview({}: Props) {
               )
             })}
           </div>
-          {/* <p>Current Time: {currentTime}s</p> */}
         </Box>
       </Flex>
     </Grid>

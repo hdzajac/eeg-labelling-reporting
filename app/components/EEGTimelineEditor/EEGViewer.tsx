@@ -9,7 +9,6 @@ import { useTimelineStore } from '@/store/timeline'
 import AnnotationDialog from './AnnotationDialog'
 import EEGChart from './EEGChart'
 import TimeControl from './TimeControl'
-import TimelineOverview from './TimelineOverview'
 import useEDF from './useEDF'
 
 type Props = {
@@ -119,8 +118,6 @@ export default function EEGViewer({ onAnnotationAdd }: Props) {
           />
         </Flex>
       </Grid>
-
-      <TimelineOverview />
     </div>
   )
 }
