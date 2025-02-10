@@ -118,7 +118,7 @@ export default function AnnotationsTimeline({
                   width: '14px',
                   backgroundColor: '#FFEB78',
                   border: '1px dashed #E5A00D',
-                  marginTop: '-3px',
+                  marginTop: '-2px',
                 }
 
                 const styles = annotation.mode === 'AI' ? aiStyles : defaultStyles

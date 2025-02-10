@@ -34,18 +34,24 @@ export default function EEGChart({
   const { position } = useTimelineStore()
   const { annotations } = useAnnotationsStore()
 
-  const { observations, states } = annotations.reduce(
+  const { observations, states, aiAnnotations } = annotations.reduce(
     (acc, a) => {
       if (a.signalIndex === position) {
         if (a.mode === 'OBSERVATION') {
           acc.observations.push(a)
         } else if (a.mode === 'STATE') {
           acc.states.push(a)
+        } else if (a.mode === 'AI') {
+          acc.aiAnnotations.push(a)
         }
       }
       return acc
     },
-    { observations: [] as Annotation[], states: [] as Annotation[] }
+    {
+      observations: [] as Annotation[],
+      states: [] as Annotation[],
+      aiAnnotations: [] as Annotation[],
+    }
   )
 
   // We need to use a custom reference area because of the negative margin
@@ -81,6 +87,25 @@ export default function EEGChart({
             fillOpacity={0.3}
           />
         )}
+
+        {/** Add reference area for annotations */}
+        {aiAnnotations.map((annotation, index) => (
+          <ReferenceLine
+            key={'AI' + index}
+            x={annotation.startTime}
+            stroke="#e9d76c"
+            strokeWidth={1.5}
+            opacity={0.7}>
+            {chartIndex === 0 && (
+              <Label
+                enableBackground="#f0f"
+                value={OBSERVATION_TYPES_LABELS[annotation.type]}
+                position="right"
+                content={(props) => <CustomLabel fill="#e9d76c" {...props} />}
+              />
+            )}
+          </ReferenceLine>
+        ))}
 
         {/** Add reference area for annoations */}
         {observations.map((annotation, index) => (
