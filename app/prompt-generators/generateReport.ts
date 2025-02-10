@@ -20,6 +20,7 @@ export default async function ({ annotations, timelineInfo }: GeneratePayload, f
 
       ## Formatting requirements
       - Use <h2> tags for section headings and <p> tags for paragraphs.
+      - Convert seconds to the format: HH:MM:SS.
       
       ## Example
       
