@@ -1,5 +1,6 @@
 import { Button, Flex, Grid } from '@radix-ui/themes'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useEffect } from 'react'
 
 import { useTimelineStore } from '@/store/timeline'
 import { formatTime } from '@/utils'
@@ -13,6 +14,21 @@ export default function TimeControl({ duration }: Props) {
   const { position, interval, updatePosition } = useTimelineStore()
 
   const maxSteps = Math.floor(duration / interval)
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [position, maxSteps])
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+      handleCursor(-1)
+    } else if (e.key === 'ArrowRight') {
+      handleCursor(1)
+    }
+  }
 
   const handleCursor = (direction: number) => {
     // Update the display range based on the new position
