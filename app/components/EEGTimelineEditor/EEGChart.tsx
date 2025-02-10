@@ -69,7 +69,7 @@ export default function EEGChart({
         <CartesianGrid strokeDasharray="3 0" horizontal={false} />
         <YAxis domain={[min, max]} hide={true} />
 
-        <Line type="monotone" dataKey="y" stroke="#8884d8" dot={false} />
+        <Line type="monotone" dataKey="y" stroke="#8884d8" dot={false} isAnimationActive={false} />
         {isDragging && selection.start && selection.start && (
           <ReferenceArea
             x1={selection.start}
