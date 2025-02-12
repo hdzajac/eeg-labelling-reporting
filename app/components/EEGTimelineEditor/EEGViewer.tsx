@@ -1,7 +1,7 @@
 import { Button, Flex, Grid, Text } from '@radix-ui/themes'
 import html2canvas from 'html2canvas-pro'
 import { Camera } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { SyntheticEvent, useRef, useState } from 'react'
 
 import { ANNOTATION_TYPES } from '@/constants'
 import useAnnotationsStore, { Annotation } from '@/store/annotations'
@@ -12,10 +12,11 @@ import TimeControl from './TimeControl'
 import useEDF from './useEDF'
 
 type Props = {
+  onAnnotationDelete: (ann: Annotation) => void
   onAnnotationAdd: (ann: Annotation) => void
 }
 
-export default function EEGViewer({ onAnnotationAdd }: Props) {
+export default function EEGViewer({ onAnnotationAdd, onAnnotationDelete }: Props) {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dialogOpen, setDialogOpen] = useState<(typeof ANNOTATION_TYPES)[number] | false>(false)
@@ -37,7 +38,14 @@ export default function EEGViewer({ onAnnotationAdd }: Props) {
     }
   }
 
-  const handleMouseUp = (e: any, chartIndex: number) => {
+  const handleMouseUp = (state: any, ev: SyntheticEvent, chartIndex: number) => {
+    setIsDragging(false)
+
+    // Ignore clicks on label. Something cleaner would be nice here.
+    if (['text', 'rect', 'path'].includes(ev.target.nodeName)) {
+      return
+    }
+
     if (selection.start === selection.end) {
       // Single click
       setDialogOpen('OBSERVATION')
@@ -47,9 +55,7 @@ export default function EEGViewer({ onAnnotationAdd }: Props) {
     }
 
     const offset = 25 * chartIndex
-    setMenuPosition({ x: e.chartX, y: e.chartY + offset })
-
-    setIsDragging(false)
+    setMenuPosition({ x: state.chartX, y: state.chartY + offset })
   }
 
   const handleSave = (annotation: Annotation) => {
@@ -105,7 +111,8 @@ export default function EEGViewer({ onAnnotationAdd }: Props) {
               data={d}
               handleMouseDown={handleMouseDown}
               handleMouseMove={handleMouseMove}
-              handleMouseUp={(e) => handleMouseUp(e, index)}
+              handleMouseUp={(state, ev) => handleMouseUp(state, ev, index)}
+              onAnnotationDelete={onAnnotationDelete}
               selection={selection}
               isDragging={isDragging}
             />

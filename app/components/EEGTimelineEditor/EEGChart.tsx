@@ -1,6 +1,8 @@
 import { OBSERVATION_COLORS, OBSERVATION_TYPES_LABELS, STATE_TYPES_LABELS } from '@/constants'
 import useAnnotationsStore, { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
+import { X } from 'lucide-react'
+import { SyntheticEvent } from 'react'
 import {
   CartesianGrid,
   Label,
@@ -15,9 +17,10 @@ import {
 type ChartProps = {
   chartIndex: number
   data: Array<{ x: number; y: number }>
-  handleMouseDown: (e: any) => void
-  handleMouseMove: (e: any) => void
-  handleMouseUp: (e: any) => void
+  handleMouseDown: (state: any) => void
+  handleMouseMove: (state: any) => void
+  handleMouseUp: (state: any, ev: SyntheticEvent) => void
+  onAnnotationDelete: (ann: Annotation) => void
   selection: { start: number | null; end: number | null }
   isDragging: boolean
 }
@@ -28,6 +31,7 @@ export default function EEGChart({
   handleMouseDown,
   handleMouseMove,
   handleMouseUp,
+  onAnnotationDelete,
   selection,
   isDragging,
 }: ChartProps) {
@@ -95,16 +99,18 @@ export default function EEGChart({
             x={annotation.startTime}
             stroke="#e9d76c"
             strokeWidth={1.5}
-            opacity={0.7}>
-            {chartIndex === 0 && (
-              <Label
-                enableBackground="#f0f"
-                value={OBSERVATION_TYPES_LABELS[annotation.type]}
-                position="right"
-                content={(props) => <CustomLabel fill="#e9d76c" {...props} />}
-              />
-            )}
-          </ReferenceLine>
+            opacity={0.7}
+            label={
+              chartIndex === 0 && (
+                <CustomLabel
+                  fill="#e9d76c"
+                  value={OBSERVATION_TYPES_LABELS[annotation.type]}
+                  onDelete={() => {
+                    onAnnotationDelete(annotation)
+                  }}
+                />
+              )
+            }></ReferenceLine>
         ))}
 
         {/** Add reference area for annoations */}
@@ -114,18 +120,18 @@ export default function EEGChart({
             x={annotation.startTime}
             stroke={OBSERVATION_COLORS[annotation.type]}
             strokeWidth={1.5}
-            opacity={0.7}>
-            {chartIndex === 0 && (
-              <Label
-                enableBackground="#f0f"
-                value={OBSERVATION_TYPES_LABELS[annotation.type]}
-                position="right"
-                content={(props) => (
-                  <CustomLabel fill={OBSERVATION_COLORS[annotation.type]} {...props} />
-                )}
-              />
-            )}
-          </ReferenceLine>
+            opacity={0.7}
+            label={
+              chartIndex === 0 && (
+                <CustomLabel
+                  value={OBSERVATION_TYPES_LABELS[annotation.type]}
+                  fill={OBSERVATION_COLORS[annotation.type]}
+                  onDelete={() => {
+                    onAnnotationDelete(annotation)
+                  }}
+                />
+              )
+            }></ReferenceLine>
         ))}
 
         {states.map((annotation, index) => (
@@ -136,36 +142,32 @@ export default function EEGChart({
             y1={min}
             y2={y2}
             fill="#FF8302"
-            fillOpacity={0.2}>
-            {chartIndex === 0 && (
-              <Label
-                enableBackground="#f0f"
-                value={STATE_TYPES_LABELS[annotation.type]}
-                position="right"
-                content={(props) => <CustomLabel {...props} />}
-              />
-            )}
-          </ReferenceArea>
+            fillOpacity={0.1}
+            label={
+              chartIndex === 0 && (
+                <CustomLabel
+                  value={STATE_TYPES_LABELS[annotation.type]}
+                  onDelete={() => onAnnotationDelete(annotation)}
+                  onClick={() => onAnnotationDelete(annotation)}
+                />
+              )
+            }></ReferenceArea>
         ))}
       </LineChart>
     </ResponsiveContainer>
   )
 }
 
-function CustomLabel({ fill = '#FF8302', ...props }: any) {
+function CustomLabel({ fill = '#FF8302', viewBox, value, onDelete }: any) {
   return (
-    <g>
-      <rect
-        x={props.viewBox.x}
-        y={props.viewBox.y}
-        fill={fill}
-        width={115}
-        height={20}
-        opacity={0.8}
-      />
-      <text x={props.viewBox.x} y={props.viewBox.y} fill="#fff" dy={13} dx={8} fontSize={10}>
-        {props.value}
+    <g transform={`translate(${viewBox.x},${viewBox.y})`} cursor="pointer" onClick={onDelete}>
+      <rect width="125" height="20" opacity={0.8} fill={fill} />
+      <text fill="#111" dy={13} dx={8} fontSize={10}>
+        {value}
       </text>
+      <g transform={`translate(110,3)`}>
+        <X size={14} />
+      </g>
     </g>
   )
 }

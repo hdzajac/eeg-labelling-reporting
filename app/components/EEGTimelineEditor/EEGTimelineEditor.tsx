@@ -21,7 +21,10 @@ export function EEGTimelineEditor() {
 
   return (
     <Flex direction="column" gap="2">
-      <EEGViewer onAnnotationAdd={handleAddAnnotation} />
+      <EEGViewer
+        onAnnotationAdd={handleAddAnnotation}
+        onAnnotationDelete={handleDeleteAnnotation}
+      />
       <AnnotationsTimeline
         annotations={annotations}
         onAnnotationAdd={handleAddAnnotation}
