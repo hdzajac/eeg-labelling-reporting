@@ -3,13 +3,14 @@ import { X } from 'lucide-react'
 
 import {
   ANNOTATION_TYPES,
+  OBSERVATION_COLORS,
   OBSERVATION_TYPES,
   OBSERVATION_TYPES_LABELS,
   STATE_TYPES,
   STATE_TYPES_LABELS,
 } from '@/constants'
-import { useTimelineStore } from '@/store/timeline'
 import { Annotation } from '@/store/annotations'
+import { useTimelineStore } from '@/store/timeline'
 
 type TMode = (typeof ANNOTATION_TYPES)[number] | false
 
@@ -77,9 +78,8 @@ export default function AnnotationDialog({
             key={type}
             size="1"
             style={{
-              backgroundColor: '#FFF9F2',
-              border: '1px solid #FFCD9833',
-              color: '#FF8302',
+              backgroundColor: OBSERVATION_COLORS[type],
+              color: '#111',
               justifyContent: 'left',
             }}
             onClick={() => handleConfirm(type)}>
