@@ -8,10 +8,14 @@ import FileUpload from '@/components/FileUpload'
 import Header from '@/components/Header'
 import Report from '@/components/Report'
 import { useEDFStore } from '@/store/edf'
+import useAnnotationsStore from '@/store/annotations'
+import { useFlags } from '@/components/FeatureFlag/useFlags'
 
 export default function Index() {
   const [file, setFile] = useState<File | null>(null)
   const { edf, setEDF } = useEDFStore()
+  const { setAnnotations } = useAnnotationsStore()
+  const { flags } = useFlags()
 
   useEffect(() => {
     const decoder = new EdfDecoder()
@@ -25,6 +29,9 @@ export default function Index() {
       decoder.setInput(buffer)
       decoder.decode()
       const output = decoder.getOutput()
+
+      // Load local annotaions
+      setAnnotations(flags.aiAnnotations)
 
       setEDF(output)
     }

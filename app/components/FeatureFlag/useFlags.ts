@@ -1,4 +1,5 @@
 import systemPrompt from '@/prompt-generators/helpers/system-prompt'
+import { Annotation } from '@/store/annotations'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
@@ -11,6 +12,8 @@ export type Flags = {
   // UI
   desampleRate: number
   streamData: boolean
+  // AI Annotations
+  aiAnnotations: Annotation[]
 }
 
 export const defaultFlags: Flags = {
@@ -22,6 +25,7 @@ export const defaultFlags: Flags = {
   // UI
   desampleRate: 2,
   streamData: true,
+  aiAnnotations: [],
 }
 
 type FeatureFlagState = {

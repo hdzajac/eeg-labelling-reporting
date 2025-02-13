@@ -2,6 +2,7 @@ import { Box, Button, Dialog, Flex, Tabs } from '@radix-ui/themes'
 import { Settings } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
+import AIAnnotationsPanel from './AIAnnotationsPanel'
 import InterfacePanel from './InterfacePanel'
 import PromptPanel from './PromptPanel'
 import { defaultFlags, useFlags } from './useFlags'
@@ -34,13 +35,14 @@ export default function FeatureFlagDialog({}: Props) {
       </Dialog.Trigger>
 
       <Dialog.Content maxWidth="650px" aria-describedby={undefined}>
-        <Dialog.Title>Feature flags</Dialog.Title>
+        <Dialog.Title>Configuration</Dialog.Title>
 
         <form onSubmit={handleSubmit(update)}>
           <Tabs.Root defaultValue="prompt">
             <Tabs.List>
               <Tabs.Trigger value="prompt">Prompt</Tabs.Trigger>
               <Tabs.Trigger value="ui">UI</Tabs.Trigger>
+              <Tabs.Trigger value="ai-annotations">AI Annotations</Tabs.Trigger>
             </Tabs.List>
 
             <Box pt="3">
@@ -50,6 +52,10 @@ export default function FeatureFlagDialog({}: Props) {
 
               <Tabs.Content value="ui">
                 <InterfacePanel control={control} />
+              </Tabs.Content>
+
+              <Tabs.Content value="ai-annotations">
+                <AIAnnotationsPanel control={control} />
               </Tabs.Content>
             </Box>
           </Tabs.Root>
