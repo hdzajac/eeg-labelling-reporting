@@ -97,13 +97,13 @@ export default function EEGChart({
           <ReferenceLine
             key={'AI' + index}
             x={annotation.startTime}
-            stroke="#e9d76c"
+            stroke="#5DFE33"
             strokeWidth={1.5}
             opacity={0.7}
             label={
               chartIndex === 0 && (
                 <CustomLabel
-                  fill="#e9d76c"
+                  fill="#5DFE33"
                   value={OBSERVATION_TYPES_LABELS[annotation.type]}
                   onDelete={() => {
                     onAnnotationDelete(annotation)

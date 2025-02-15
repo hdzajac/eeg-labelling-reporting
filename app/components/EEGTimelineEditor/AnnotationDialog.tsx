@@ -79,7 +79,7 @@ export default function AnnotationDialog({
             size="1"
             style={{
               backgroundColor: OBSERVATION_COLORS[type],
-              color: '#111',
+              color: '#fff',
               justifyContent: 'left',
             }}
             onClick={() => handleConfirm(type)}>

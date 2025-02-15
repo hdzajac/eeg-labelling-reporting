@@ -116,8 +116,8 @@ export default function AnnotationsTimeline({
                 const aiStyles = {
                   height: '14px',
                   width: '14px',
-                  backgroundColor: '#FFEB78',
-                  border: '1px dashed #E5A00D',
+                  backgroundColor: '#5DFE33',
+                  border: '1px dashed #3D9E24',
                   marginTop: '-2px',
                 }
 
