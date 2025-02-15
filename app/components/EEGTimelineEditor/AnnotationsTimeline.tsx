@@ -1,4 +1,5 @@
 import { Box, Flex, Grid, Heading, Text } from '@radix-ui/themes'
+import { useState } from 'react'
 
 import {
   OBSERVATION_COLORS,
@@ -9,11 +10,13 @@ import {
 } from '@/constants'
 import { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
+import ConfirmPopover from './ConfirmDialog'
 import TimelineOverview from './TimelineOverview'
 import useEDF from './useEDF'
 
 type Props = {
   annotations: Annotation[]
+  onConfirmAI: (ann: Annotation, type: string) => void
   onAnnotationAdd: (ann: Annotation) => void
   onAnnotationUpdate: (ann: Annotation) => void
   onAnnotationDelete: (ann: Annotation) => void
@@ -21,16 +24,27 @@ type Props = {
 
 export default function AnnotationsTimeline({
   annotations,
+  onConfirmAI,
   onAnnotationAdd,
   onAnnotationUpdate,
   onAnnotationDelete,
 }: Props) {
   const { interval, updatePosition } = useTimelineStore()
   const { duration } = useEDF()
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
 
   // console.log('annotations', annotations)
 
   const tickInterval = 300 // 5 minutes = 300 seconds
+
+  const handleObservationChange = (annotation: Annotation) => {
+    if (annotation.mode === 'AI') {
+      setShowConfirmDialog(true)
+      updatePosition(annotation.signalIndex)
+    } else {
+      updatePosition(annotation.signalIndex)
+    }
+  }
 
   return (
     <div className="panel">
@@ -125,7 +139,7 @@ export default function AnnotationsTimeline({
 
                 return (
                   <Box
-                    onClick={() => updatePosition(annotation.signalIndex)}
+                    onClick={() => handleObservationChange(annotation)}
                     key={idx}
                     position="absolute"
                     left={leftPos}
@@ -140,7 +154,14 @@ export default function AnnotationsTimeline({
 
                       ...styles,
                     }}>
-                    {annotation.mode === 'AI' && 'AI'}
+                    {annotation.mode === 'AI' && (
+                      <ConfirmPopover
+                        annotation={annotation}
+                        onDelete={onAnnotationDelete}
+                        onConfirm={onConfirmAI}>
+                        AI
+                      </ConfirmPopover>
+                    )}
                   </Box>
                 )
               })}

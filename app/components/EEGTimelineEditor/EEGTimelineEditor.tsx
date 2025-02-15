@@ -19,6 +19,20 @@ export function EEGTimelineEditor() {
     setAnnotations(annotations.map((a) => (a === ann ? ann : a)))
   }
 
+  const handleConfirmAI = (ann: Annotation, type: string) => {
+    // Remove AI
+    const obs = annotations.filter((a) => a !== ann)
+
+    setAnnotations([
+      ...obs,
+      {
+        ...ann,
+        type,
+        mode: 'OBSERVATION',
+      },
+    ])
+  }
+
   return (
     <Flex direction="column" gap="2">
       <EEGViewer
@@ -28,6 +42,7 @@ export function EEGTimelineEditor() {
       <AnnotationsTimeline
         annotations={annotations}
         onAnnotationAdd={handleAddAnnotation}
+        onConfirmAI={handleConfirmAI}
         onAnnotationDelete={handleDeleteAnnotation}
         onAnnotationUpdate={handleUpdateAnnotation}
       />
