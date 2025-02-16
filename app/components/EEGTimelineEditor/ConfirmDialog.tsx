@@ -29,14 +29,14 @@ export default function ConfirmPopover({ annotation, children, onConfirm, onDele
   }
 
   return (
-    <Popover.Root open={isOpen}>
+    <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger onClick={() => setIsOpen(true)}>
         <button
           style={{
             backgroundColor: 'transparent',
             padding: 0,
             border: 'none',
-            fontSize: 10,
+            fontSize: 9,
             cursor: 'pointer',
           }}>
           {children}
@@ -86,10 +86,8 @@ function ObservationsList({
   setChangeOpen,
   onChangeType,
 }: ObservationsListProps) {
-  console.log(chagenOpen)
-
   return (
-    <Popover.Root open={chagenOpen}>
+    <Popover.Root open={chagenOpen} onOpenChange={setChangeOpen}>
       <Popover.Trigger>
         <Button
           mt="1"

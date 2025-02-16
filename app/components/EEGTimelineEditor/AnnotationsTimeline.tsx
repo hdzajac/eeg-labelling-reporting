@@ -1,5 +1,4 @@
 import { Box, Flex, Grid, Heading, Text } from '@radix-ui/themes'
-import { useState } from 'react'
 
 import {
   OBSERVATION_COLORS,
@@ -31,20 +30,10 @@ export default function AnnotationsTimeline({
 }: Props) {
   const { interval, updatePosition } = useTimelineStore()
   const { duration } = useEDF()
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
 
   // console.log('annotations', annotations)
 
   const tickInterval = 300 // 5 minutes = 300 seconds
-
-  const handleObservationChange = (annotation: Annotation) => {
-    if (annotation.mode === 'AI') {
-      setShowConfirmDialog(true)
-      updatePosition(annotation.signalIndex)
-    } else {
-      updatePosition(annotation.signalIndex)
-    }
-  }
 
   return (
     <div className="panel">
@@ -139,7 +128,7 @@ export default function AnnotationsTimeline({
 
                 return (
                   <Box
-                    onClick={() => handleObservationChange(annotation)}
+                    onClick={() => updatePosition(annotation.signalIndex)}
                     key={idx}
                     position="absolute"
                     left={leftPos}

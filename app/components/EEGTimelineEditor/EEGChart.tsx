@@ -92,7 +92,7 @@ export default function EEGChart({
           />
         )}
 
-        {/** Add reference area for annotations */}
+        {/** Add reference area for AI annotations */}
         {aiAnnotations.map((annotation, index) => (
           <ReferenceLine
             key={'AI' + index}
@@ -104,7 +104,10 @@ export default function EEGChart({
               chartIndex === 0 && (
                 <CustomLabel
                   fill="#5DFE33"
-                  value={OBSERVATION_TYPES_LABELS[annotation.type]}
+                  value={
+                    OBSERVATION_TYPES_LABELS[annotation.type] +
+                    (annotation.mode === 'AI' ? ' (AI)' : '')
+                  }
                   onDelete={() => {
                     onAnnotationDelete(annotation)
                   }}
@@ -161,11 +164,11 @@ export default function EEGChart({
 function CustomLabel({ fill = '#FF8302', viewBox, value, onDelete }: any) {
   return (
     <g transform={`translate(${viewBox.x},${viewBox.y})`} cursor="pointer" onClick={onDelete}>
-      <rect width="125" height="20" opacity={0.8} fill={fill} />
+      <rect width="145" height="20" opacity={0.8} fill={fill} />
       <text fill="#111" dy={13} dx={8} fontSize={10}>
         {value}
       </text>
-      <g transform={`translate(110,3)`}>
+      <g transform={`translate(130,3)`}>
         <X size={14} />
       </g>
     </g>
