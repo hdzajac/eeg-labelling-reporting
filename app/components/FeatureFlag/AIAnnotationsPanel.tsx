@@ -38,8 +38,18 @@ function AnnotationEditor({ onChange, annotations }: AnnotationEditorProps) {
 
   const handleAddEntry = () => {
     const totalSeconds = secondsToTime(parseInt(seconds), interval, numberOfSamples)
-    const signalIndex = Math.floor(totalSeconds / numberOfSamples)
-    const time = numberOfSamples - (totalSeconds % numberOfSamples)
+    let signalIndex = Math.floor(totalSeconds / numberOfSamples)
+
+    if (Number.isInteger(totalSeconds / numberOfSamples) && totalSeconds !== 0) {
+      signalIndex -= 1
+    }
+
+    let time = totalSeconds - numberOfSamples * signalIndex
+
+    // Hack to deal with multiples of the interval
+    if (Number.isInteger(totalSeconds / numberOfSamples)) {
+      time -= 2
+    }
 
     if (type && seconds) {
       onChange([...annotations, createAnnotation(type, time, signalIndex)])
@@ -71,7 +81,9 @@ function AnnotationEditor({ onChange, annotations }: AnnotationEditorProps) {
                 <Text size="1">{OBSERVATION_TYPES_LABELS[entry.type]}</Text>
               </Box>
               <Box width="100px">
-                <Text size="1">{annotationToSeconds(entry, interval, numberOfSamples)}</Text>
+                <Text size="1">
+                  {annotationToSeconds(entry, numberOfSamples, flags.desampleRate)}
+                </Text>
               </Box>
             </Flex>
             <Button ml="auto" variant="ghost" onClick={() => handleRemoveEntry(index)}>
@@ -111,12 +123,14 @@ function createAnnotation(type: string, time: number, signalIndex: number): Anno
 
 function annotationToSeconds(
   annotation: Annotation,
-  interval: number,
-  numberOfSamples: number
+  numberOfSamples: number,
+  desampleRate: number
 ): number {
-  return (annotation.startTime * interval) / numberOfSamples + annotation.signalIndex * interval
+  const totalSamples = annotation.startTime + annotation.signalIndex * numberOfSamples
+
+  return Math.round((totalSamples / 256) * desampleRate)
 }
 
 function secondsToTime(seconds: number, interval: number, numberOfSamples: number): number {
-  return (seconds * numberOfSamples) / interval
+  return (numberOfSamples / interval) * seconds
 }
