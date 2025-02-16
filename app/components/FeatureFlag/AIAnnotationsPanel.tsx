@@ -37,7 +37,8 @@ function AnnotationEditor({ onChange, annotations }: AnnotationEditorProps) {
   const numberOfSamples = (256 * interval) / flags.desampleRate
 
   const handleAddEntry = () => {
-    const totalSeconds = secondsToTime(parseInt(seconds), interval, numberOfSamples)
+    const totalSeconds = secondsToTime(parseFloat(seconds), interval, numberOfSamples)
+
     let signalIndex = Math.floor(totalSeconds / numberOfSamples)
 
     if (Number.isInteger(totalSeconds / numberOfSamples) && totalSeconds !== 0) {
@@ -128,7 +129,14 @@ function annotationToSeconds(
 ): number {
   const totalSamples = annotation.startTime + annotation.signalIndex * numberOfSamples
 
-  return Math.round((totalSamples / 256) * desampleRate)
+  const result = (totalSamples / 256) * desampleRate
+
+  // Hack to deal with multiples of the interval
+  if ((annotation.startTime + 2) % numberOfSamples === 0) {
+    return Math.round(result)
+  }
+
+  return result
 }
 
 function secondsToTime(seconds: number, interval: number, numberOfSamples: number): number {
