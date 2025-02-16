@@ -162,8 +162,14 @@ export default function EEGChart({
 }
 
 function CustomLabel({ fill = '#FF8302', viewBox, value, onDelete }: any) {
+  // Invert label direction if close to the end
+  const offset = viewBox.x >= 750 ? 145 : 0
+
   return (
-    <g transform={`translate(${viewBox.x},${viewBox.y})`} cursor="pointer" onClick={onDelete}>
+    <g
+      transform={`translate(${viewBox.x - offset},${viewBox.y})`}
+      cursor="pointer"
+      onClick={onDelete}>
       <rect width="145" height="20" opacity={0.8} fill={fill} />
       <text fill="#111" dy={13} dx={8} fontSize={10}>
         {value}

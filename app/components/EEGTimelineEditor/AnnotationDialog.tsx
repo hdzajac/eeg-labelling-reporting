@@ -63,6 +63,7 @@ export default function AnnotationDialog({
         left: menuPosition?.x ?? 0,
         top: menuPosition?.y ?? 0,
         zIndex: 100,
+        minWidth: 160,
       }}>
       <Flex justify="between" align="center">
         <Heading as="h3" size="1" style={{ textTransform: 'uppercase' }}>
