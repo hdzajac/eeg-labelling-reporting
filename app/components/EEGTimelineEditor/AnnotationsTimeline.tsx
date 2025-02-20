@@ -7,9 +7,8 @@ import {
   STATE_TYPES,
   STATE_TYPES_LABELS,
 } from '@/constants'
-import { Annotation } from '@/store/annotations'
+import useAnnotationsStore, { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
-import ConfirmPopover from './ConfirmDialog'
 import TimelineOverview from './TimelineOverview'
 import useEDF from './useEDF'
 
@@ -30,8 +29,7 @@ export default function AnnotationsTimeline({
 }: Props) {
   const { interval, updatePosition } = useTimelineStore()
   const { duration } = useEDF()
-
-  // console.log('annotations', annotations)
+  const { setCurrent } = useAnnotationsStore()
 
   const tickInterval = 300 // 5 minutes = 300 seconds
 
@@ -144,12 +142,17 @@ export default function AnnotationsTimeline({
                       ...styles,
                     }}>
                     {annotation.mode === 'AI' && (
-                      <ConfirmPopover
-                        annotation={annotation}
-                        onDelete={onAnnotationDelete}
-                        onConfirm={onConfirmAI}>
+                      <button
+                        style={{
+                          backgroundColor: 'transparent',
+                          padding: 0,
+                          border: 'none',
+                          fontSize: 9,
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => setCurrent(annotation)}>
                         AI
-                      </ConfirmPopover>
+                      </button>
                     )}
                   </Box>
                 )

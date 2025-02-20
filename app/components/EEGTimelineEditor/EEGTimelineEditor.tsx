@@ -5,7 +5,7 @@ import AnnotationsTimeline from './AnnotationsTimeline'
 import EEGViewer from './EEGViewer'
 
 export function EEGTimelineEditor() {
-  const { annotations, setAnnotations } = useAnnotationsStore()
+  const { annotations, setCurrent, setAnnotations } = useAnnotationsStore()
 
   const handleAddAnnotation = (ann: Annotation) => {
     setAnnotations([...annotations, ann])
@@ -38,6 +38,7 @@ export function EEGTimelineEditor() {
       <EEGViewer
         onAnnotationAdd={handleAddAnnotation}
         onAnnotationDelete={handleDeleteAnnotation}
+        onConfirmAI={handleConfirmAI}
       />
       <AnnotationsTimeline
         annotations={annotations}

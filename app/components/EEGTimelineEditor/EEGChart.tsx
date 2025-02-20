@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
   YAxis,
 } from 'recharts'
+import ConfirmPopover from './ConfirmDialog'
 
 type ChartProps = {
   chartIndex: number
@@ -24,6 +25,8 @@ type ChartProps = {
   selection: { start: number | null; end: number | null }
   isDragging: boolean
 }
+
+const CHANNELS = 29
 
 export default function EEGChart({
   chartIndex,
@@ -101,7 +104,7 @@ export default function EEGChart({
             strokeWidth={1.5}
             opacity={0.7}
             label={
-              chartIndex === 0 && (
+              chartIndex === CHANNELS && (
                 <CustomLabel
                   fill="#5DFE33"
                   value={
@@ -125,7 +128,7 @@ export default function EEGChart({
             strokeWidth={1.5}
             opacity={0.7}
             label={
-              chartIndex === 0 && (
+              chartIndex === CHANNELS && (
                 <CustomLabel
                   value={OBSERVATION_TYPES_LABELS[annotation.type]}
                   fill={OBSERVATION_COLORS[annotation.type]}
@@ -147,7 +150,7 @@ export default function EEGChart({
             fill="#FF8302"
             fillOpacity={0.1}
             label={
-              chartIndex === 0 && (
+              chartIndex === CHANNELS && (
                 <CustomLabel
                   value={STATE_TYPES_LABELS[annotation.type]}
                   onDelete={() => onAnnotationDelete(annotation)}

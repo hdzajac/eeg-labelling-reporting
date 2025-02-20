@@ -17,6 +17,8 @@ export type Screenshot = {
 interface AnnotationStore {
   annotations: Annotation[]
   screenshots: Screenshot[]
+  current: Annotation | null
+  setCurrent: (annotation: Annotation | null) => void
   setAnnotations: (annotations: Annotation[]) => void
   addScreenshot: (screenshot: Screenshot) => void
 }
@@ -24,6 +26,8 @@ interface AnnotationStore {
 const useAnnotationsStore = create<AnnotationStore>((set) => ({
   annotations: [],
   screenshots: [],
+  current: null,
+  setCurrent: (annotation) => set({ current: annotation }),
   setAnnotations: (annotations) => set({ annotations }),
   addScreenshot: (image) =>
     set({ screenshots: [...useAnnotationsStore.getState().screenshots, image] }),

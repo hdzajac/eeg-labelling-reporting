@@ -79,8 +79,9 @@ export default function AnnotationDialog({
             key={type}
             size="1"
             style={{
-              backgroundColor: OBSERVATION_COLORS[type],
-              color: '#fff',
+              border: '1px solid #FFCD9833',
+              backgroundColor: mode === 'OBSERVATION' ? OBSERVATION_COLORS[type] : '#FFF9F2',
+              color: mode === 'OBSERVATION' ? '#fff' : 'black',
               justifyContent: 'left',
             }}
             onClick={() => handleConfirm(type)}>

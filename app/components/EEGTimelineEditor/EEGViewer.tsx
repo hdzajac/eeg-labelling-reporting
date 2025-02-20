@@ -7,21 +7,23 @@ import { ANNOTATION_TYPES } from '@/constants'
 import useAnnotationsStore, { Annotation } from '@/store/annotations'
 import { useTimelineStore } from '@/store/timeline'
 import AnnotationDialog from './AnnotationDialog'
+import ConfirmDialog from './ConfirmDialog'
 import EEGChart from './EEGChart'
 import TimeControl from './TimeControl'
 import useEDF from './useEDF'
 
 type Props = {
+  onConfirmAI: (ann: Annotation, type: string) => void
   onAnnotationDelete: (ann: Annotation) => void
   onAnnotationAdd: (ann: Annotation) => void
 }
 
-export default function EEGViewer({ onAnnotationAdd, onAnnotationDelete }: Props) {
+export default function EEGViewer({ onAnnotationAdd, onAnnotationDelete, onConfirmAI }: Props) {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dialogOpen, setDialogOpen] = useState<(typeof ANNOTATION_TYPES)[number] | false>(false)
   const { data, signalInfo, duration } = useEDF()
-  const { addScreenshot } = useAnnotationsStore()
+  const { addScreenshot, current } = useAnnotationsStore()
   const { position, interval } = useTimelineStore()
   const captureRef = useRef<HTMLDivElement>(null)
 
@@ -124,6 +126,13 @@ export default function EEGViewer({ onAnnotationAdd, onAnnotationDelete }: Props
             onSave={handleSave}
             menuPosition={menuPosition}
           />
+          {current && (
+            <ConfirmDialog
+              annotation={current}
+              onConfirm={onConfirmAI}
+              onDelete={onAnnotationDelete}
+            />
+          )}
         </Flex>
       </Grid>
     </div>
