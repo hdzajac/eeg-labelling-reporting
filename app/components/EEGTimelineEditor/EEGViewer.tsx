@@ -111,6 +111,7 @@ export default function EEGViewer({ onAnnotationAdd, onAnnotationDelete, onConfi
               key={index}
               chartIndex={index}
               data={d}
+              numberOfChannels={data.length}
               handleMouseDown={handleMouseDown}
               handleMouseMove={handleMouseMove}
               handleMouseUp={(state, ev) => handleMouseUp(state, ev, index)}

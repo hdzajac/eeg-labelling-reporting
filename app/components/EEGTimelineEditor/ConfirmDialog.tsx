@@ -7,7 +7,7 @@ import AnnotationDialog from './AnnotationDialog'
 import useEDF from './useEDF'
 
 type Props = {
-  annotation: Annotation | null
+  annotation: Annotation
   onConfirm: (ann: Annotation, type: string) => void
   onDelete: (ann: Annotation) => void
 }
@@ -18,8 +18,6 @@ export default function ConfirmDialog({ annotation, onConfirm, onDelete }: Props
   const [changeOpen, setChangeOpen] = useState(false)
   const { numberOfSamples } = useEDF()
   const { setCurrent } = useAnnotationsStore()
-
-  if (!annotation || !tempType) return null
 
   const handleChangeType = (type: string) => {
     setTempType(type)

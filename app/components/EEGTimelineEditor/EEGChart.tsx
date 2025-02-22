@@ -1,11 +1,7 @@
-import { OBSERVATION_COLORS, OBSERVATION_TYPES_LABELS, STATE_TYPES_LABELS } from '@/constants'
-import useAnnotationsStore, { Annotation } from '@/store/annotations'
-import { useTimelineStore } from '@/store/timeline'
 import { X } from 'lucide-react'
 import { SyntheticEvent } from 'react'
 import {
   CartesianGrid,
-  Label,
   Line,
   LineChart,
   ReferenceArea,
@@ -13,11 +9,15 @@ import {
   ResponsiveContainer,
   YAxis,
 } from 'recharts'
-import ConfirmPopover from './ConfirmDialog'
+
+import { OBSERVATION_COLORS, OBSERVATION_TYPES_LABELS, STATE_TYPES_LABELS } from '@/constants'
+import useAnnotationsStore, { Annotation } from '@/store/annotations'
+import { useTimelineStore } from '@/store/timeline'
 
 type ChartProps = {
   chartIndex: number
   data: Array<{ x: number; y: number }>
+  numberOfChannels: number
   handleMouseDown: (state: any) => void
   handleMouseMove: (state: any) => void
   handleMouseUp: (state: any, ev: SyntheticEvent) => void
@@ -26,11 +26,10 @@ type ChartProps = {
   isDragging: boolean
 }
 
-const CHANNELS = 29
-
 export default function EEGChart({
   chartIndex,
   data,
+  numberOfChannels,
   handleMouseDown,
   handleMouseMove,
   handleMouseUp,
@@ -40,6 +39,8 @@ export default function EEGChart({
 }: ChartProps) {
   const { position } = useTimelineStore()
   const { annotations } = useAnnotationsStore()
+
+  const labelChannePos = numberOfChannels - 1
 
   const { observations, states, aiAnnotations } = annotations.reduce(
     (acc, a) => {
@@ -104,7 +105,7 @@ export default function EEGChart({
             strokeWidth={1.5}
             opacity={0.7}
             label={
-              chartIndex === CHANNELS && (
+              chartIndex === labelChannePos && (
                 <CustomLabel
                   fill="#5DFE33"
                   value={
@@ -128,7 +129,7 @@ export default function EEGChart({
             strokeWidth={1.5}
             opacity={0.7}
             label={
-              chartIndex === CHANNELS && (
+              chartIndex === labelChannePos && (
                 <CustomLabel
                   value={OBSERVATION_TYPES_LABELS[annotation.type]}
                   fill={OBSERVATION_COLORS[annotation.type]}
@@ -150,7 +151,7 @@ export default function EEGChart({
             fill="#FF8302"
             fillOpacity={0.1}
             label={
-              chartIndex === CHANNELS && (
+              chartIndex === labelChannePos && (
                 <CustomLabel
                   value={STATE_TYPES_LABELS[annotation.type]}
                   onDelete={() => onAnnotationDelete(annotation)}
